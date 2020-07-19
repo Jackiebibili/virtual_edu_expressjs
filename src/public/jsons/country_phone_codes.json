@@ -1,0 +1,25 @@
+[{
+    "name": "China",
+    "code": "CN",
+    "callingCode": "86"
+},
+{
+    "name": "Hong Kong",
+    "code": "HK",
+    "callingCode": "852"
+},
+{
+    "name": "Macau",
+    "code": "MO",
+    "callingCode": "853"
+},
+{
+    "name": "Taiwan",
+    "code": "TW",
+    "callingCode": "886"
+},
+{
+    "name": "United States",
+    "code": "US",
+    "callingCode": "1"
+}]
