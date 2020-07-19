@@ -1,0 +1,7 @@
+Username: jackiebibili
+Pw: ejXz0PINCGNwZ3Ng
+database connection url: mongodb+srv://jackiebibili:ejXz0PINCGNwZ3Ng@cluster0.1jl6d.mongodb.net/web-node?retryWrites=true&w=majority
+
+Username: Stephen
+Pw: CwGRLbmHQpEFiZdb
+database connection url: mongodb+srv://Stephen:CwGRLbmHQpEFiZdb@cluster0.1jl6d.mongodb.net/web-node?retryWrites=true&w=majority
