@@ -897,10 +897,12 @@ function handleFormSubmit(e)
         var postObj = queryStringToJSON(e.target.toQueryString());
         var request = new Request({
             data: postObj,
-            url:"http://localhost:3000/register",
-            onSuccess: function(){console.log('success');},
-            onFailure: function(){console.log('failure');},
-            header: 'Content-Type: application/json'
+            url:"/register",
+            onSuccess: function(resText){
+                console.log('success');
+                document.getElementById("html").innerHTML = resText;
+            },
+            onFailure: function(){console.log('failure');}
         });
         request.post();
     }
@@ -925,14 +927,14 @@ function showSubmitWarnings(list)
         $(elem[0]).addClass("errorField");
         getNextCell(elem[0]).innerText = elem[1];
     });
-    if(!isPasswordMatched(list))
+    if(!isPasswordMatched())
     {
         $("userpasswordconfirm").addClass("errorField");
         getNextCell($("userpasswordconfirm")).innerText = "Passwords need to be matched";
     }
-    function isPasswordMatched(list)
+    function isPasswordMatched()
     {
-        return document.infoform.userpassword.value == $("userpasswordconfirm").vaule;
+        return document.infoform.userpassword.value == $("userpasswordconfirm").value;
     }
 }
 

@@ -19,9 +19,12 @@ app.use((req, res, next) => {
 
 app.use(express.static('src/public/html'))
 
+app.set('views',path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
 
 app.use(registerRoute)
 //app.use(customerRoute)
+//app.engine('html', require('ejs').renderFile);
 
 //handler for 404 - resource not found
 app.use((req, res, next) => {
@@ -32,7 +35,7 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
     console.error(err.stack)
 
-    res.sendFile(path.join(__dirname, '../public/html/500.html'))
+    res.sendFile(path.join(__dirname, 'public/html/500.html'))
 
 })
 

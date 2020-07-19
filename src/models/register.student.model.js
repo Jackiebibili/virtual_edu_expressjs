@@ -7,24 +7,24 @@ mongoose.connect("mongodb+srv://jackiebibili:ejXz0PINCGNwZ3Ng@cluster0.1jl6d.mon
 });
 
 let CustomerSchema = new mongoose.Schema({
-    fullname: String,
-    phone_country_code: {
+    fullnametext: String,
+    regioncode: String,
+    phonetext: {
         type: String,
         unique: true
     },
-    phone_number: String,
-    email: {
+    useremail: {
         type: String,
         unique: true
     },
-    register_as: String,
-    grade_level: String,
-    year_of_birth: String,
-    username: {
+    usertypeselection: String,
+    gradelevelselect: String,
+    yearofbirthselect: String,
+    usernametext: {
         type: String,
         unique: true
     },
-    password: String
+    userpassword: String
 })
 
 
