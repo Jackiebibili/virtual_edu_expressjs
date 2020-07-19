@@ -848,6 +848,7 @@ function handleMouseSubmit(e)
 
 function handleFormSubmit(e)
 {
+    e.preventDefault();
     function clearTimers(timerList, checkElem)
     {
         clearAllRepeatedTimers(timerList);
@@ -891,9 +892,31 @@ function handleFormSubmit(e)
     }
     showSubmitWarnings(warningsList);
     if(!pass){    e.preventDefault();    }
-    else{console.log(e.target.toQueryString());}
+    else{
+        console.log(e.target.toQueryString());
+        var postObj = queryStringToJSON(e.target.toQueryString());
+        var request = new Request({
+            data: postObj,
+            url:"http://localhost:3000/register",
+            onSuccess: function(){console.log('success');},
+            onFailure: function(){console.log('failure');},
+            header: 'Content-Type: application/json'
+        });
+        request.post();
+    }
     //console.log(warningsList);
     //document.infoform.submit();
+}
+
+function queryStringToJSON(str)
+{
+    var pairs = str.split('&');
+    var result = {};
+    pairs.forEach(function(pair){
+        pair = pair.split('=');
+        result[pair[0]] = decodeURIComponent(pair[1]);
+    });
+    return JSON.parse(JSON.stringify(result));
 }
 
 function showSubmitWarnings(list)
