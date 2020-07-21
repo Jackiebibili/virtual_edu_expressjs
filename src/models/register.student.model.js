@@ -1,10 +1,5 @@
-let mongoose = require('mongoose');
-
-mongoose.connect("mongodb+srv://jackiebibili:ejXz0PINCGNwZ3Ng@cluster0.1jl6d.mongodb.net/student?retryWrites=true&w=majority", {
-    useUnifiedTopology: true,
-    useCreateIndex: true,
-    useNewUrlParser: true
-});
+//let mongoose = require('mongoose');
+mongoose.connection.collection('Students')
 
 let CustomerSchema = new mongoose.Schema({
     fullnametext: String,
@@ -28,4 +23,4 @@ let CustomerSchema = new mongoose.Schema({
 })
 
 
-module.exports = mongoose.model('Student', CustomerSchema)
+module.exports = mongoose.model('Students', CustomerSchema)

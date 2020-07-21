@@ -111,8 +111,8 @@ function addStudentTypeElements()
                 "college student"];
     var yearStr = obtainYearString(1970, 2020);
 
-    var parentTable = $("infotable").firstChild.nextSibling;
-    var posLowerBound = $("username_row");
+    var parentTable = document.getElementById("infotable").firstChild.nextSibling;
+    var posLowerBound = document.getElementById('username_row');
     var gradeLevelAttr = {
         id:"gradelevel_row"
     };
@@ -153,8 +153,8 @@ function addStudentTypeElements()
 
     parentTable.insertBefore(gradelevel_row, posLowerBound);
     parentTable.insertBefore(yearOfBirth_row, posLowerBound);
-    $(gradelevelSelect).addEvent("change", handleSelectionBox);
-    $(yearOfBirthSelect).addEvent("change", handleSelectionBox);
+    gradelevelSelect.addEventListener("change", handleSelectionBox);
+    yearOfBirthSelect.addEventListener("change", handleSelectionBox);
     return [gradelevel_row, yearOfBirth_row];
 }
 
@@ -163,8 +163,8 @@ function addInstructorTypeSelector()
 {
     //dynamically add instructor user type elements
     var typeOfInstructorStr = ["select an option", "individual educator", "inistutional/organizational educator"];
-    var parentTable = $("infotable").firstChild.nextSibling;
-    var posLowerBound = $("username_row");
+    var parentTable = document.getElementById("infotable").firstChild.nextSibling;
+    var posLowerBound = document.getElementById('username_row');
     var typeOfInstructorSelectAttr = {
         id:"typeofinstructorselect",
         name:"typeofinstructorselect"
@@ -179,8 +179,8 @@ function addInstructorTypeSelector()
     typeOfInstructor_row.adopt(new Element("td", {class:"checkEmpty"}));
 
     parentTable.insertBefore(typeOfInstructor_row, posLowerBound);
-    $("typeofinstructorselect").addEvent("change", handleInstructorType);
-    $("typeofinstructorselect").addEvent("change", handleSelectionBox);
+    typeOfInstructorSelect.addEventListener("change", handleInstructorType);
+    typeOfInstructorSelect.addEventListener("change", handleSelectionBox);
     return typeOfInstructor_row;
 }
 
@@ -189,8 +189,8 @@ function addIndividualTypeElements()
 {
     var degreeList = ["select an option", "Some college", "Associate degree", "Bachelor degree",
                         "Master degree", "Doctoral degree", "Post-doctoral degree"];
-    var parentTable = $("infotable").firstChild.nextSibling;
-    var posLowerBound = $("username_row");
+    var parentTable = document.getElementById("infotable").firstChild.nextSibling;
+    var posLowerBound = document.getElementById('username_row');
     var degree_row = new Element("tr", {id: "degree_row"});
     var degreeSelect = new Element("select", {id: "degreeselection", name:"degreeselection"});
     degreeList.forEach(function(elem){
@@ -201,7 +201,7 @@ function addIndividualTypeElements()
     degree_row.adopt(new Element("td", {class:"checkEmpty"}));
 
     parentTable.insertBefore(degree_row, posLowerBound);
-    $(degreeSelect).addEvent("change", handleSelectionBox);
+    degreeSelect.addEventListener("change", handleSelectionBox);
     return degree_row;
 }
 
@@ -219,7 +219,7 @@ function testOptionsExceed(obj, regrex)
 
 function addInstitutionToSelect(keyEntered)
     {
-        var datalist = $("institutionslist");
+        var datalist = document.getElementById("institutionslist");
         if(keyEntered.length <= 5)
         {
             datalist.empty();
@@ -251,8 +251,8 @@ function getParseObject(json)
 }
 function addOrganzationalTypeElements()
 {
-    var parentTable = $("infotable").firstChild.nextSibling;
-    var posLowerBound = $("username_row");
+    var parentTable = document.getElementById("infotable").firstChild.nextSibling;
+    var posLowerBound = document.getElementById('username_row');
     //fetch the institutions list
     var requestInstitutionList = new Request.JSON({
         url:"/static/jsons/us_institutions.json",
@@ -313,9 +313,9 @@ function addOrganzationalTypeElements()
     parentTable.insertBefore(institutionList_row, posLowerBound);
     parentTable.insertBefore(institutionType_row, posLowerBound);
     parentTable.insertBefore(role_row, posLowerBound);
-    $(roleSelect).addEvent("change", handleSelectionBox);
-    $(institutionTypeSelect).addEvent("change", handleSelectionBox);
-    $(institutionName).addEvent("change", handleInstitutionOnchange);
+    roleSelect.addEventListener("change", handleSelectionBox);
+    institutionTypeSelect.addEventListener("change", handleSelectionBox);
+    institutionName.addEventListener("change", handleInstitutionOnchange);
     return [institutionList_row, institutionType_row, role_row];
 }
 
@@ -553,19 +553,19 @@ function passwordIdentityConfirm(e)
 function passwordIdentityCheck(a)
 {
     //var pw1 = document.infoform.userpassword;
-    var pw2 = $("userpasswordconfirm").value;
+    var pw2 = document.getElementById("userpasswordconfirm").value;
     return a.value == pw2;
 }
 
 function passwordIdentity(e)
 {
-    var elempasswordcheck = $(userpasswordconfirm);
+    var elempasswordcheck = document.getElementById('userpasswordconfirm');
     //only check for non-empty re-enter password field
     if(elempasswordcheck.value != "")
     {
         var elemArr = getElems(e);
         var elempassword = elemArr[0];
-        var elemcheck = $("userpasswordconfirmcheck");
+        var elemcheck = document.getElementById("userpasswordconfirmcheck");
     
         elemcheck.innerText = (elempassword.value != elempasswordcheck.value ? "passwords not matched" : "matched");
         omitWarning(elemcheck, 3000);
@@ -795,7 +795,7 @@ function handleInstructorType(e)
         addOrganzationalTypeElements().forEach(function(elem){
             handleInstructorType.elementList.push(elem);
         });
-        $("institutionnametext").addEvent("keyup", handleInstitutionNamesList);
+        document.getElementById("institutionnametext").addEventListener("keyup", handleInstitutionNamesList);
 
     }
     var selectedItem = e.target.selectedIndex;
@@ -842,8 +842,9 @@ function isFormComplete()
 
 function handleMouseSubmit(e)
 {
-    if(e.type == "mouseover"){if(isFormComplete()){$("submitbutton").addClass("button");}}
-    else if(e.type == "mouseout"){if($("submitbutton").hasClass("button")){$("submitbutton").removeClass("button");}}
+    var submitBnt = $(document.getElementById('submitbutton'));
+    if(e.type == "mouseover"){if(isFormComplete()){submitBnt.addClass("button");}}
+    else if(e.type == "mouseout"){if(submitBnt.hasClass("button")){submitBnt.removeClass("button");}}
 }
 
 function handleFormSubmit(e)
@@ -860,8 +861,8 @@ function handleFormSubmit(e)
                         handleEmail.emptyStrTimerList,
                         handlePassword.emptyStrTimerList,
                         handleConfirmpassword.emptyStrTimerList];
-    var checkFieldsList = [$("fullnamecheck"), $("usernamecheck"), $("phonecheck"),
-                            $("useremailcheck"), $("userpasswordcheck"), $("userpasswordconfirmcheck")];
+    var checkFieldsList = [document.getElementById("fullnamecheck"), document.getElementById("usernamecheck"), document.getElementById("phonecheck"),
+                            document.getElementById("useremailcheck"), document.getElementById("userpasswordcheck"), document.getElementById("userpasswordconfirmcheck")];
     for(var i = 0; i < checkEmptyFieldList.length; i++)
     {
         clearTimers(timersList[i], checkFieldsList[i]);
@@ -893,18 +894,21 @@ function handleFormSubmit(e)
     showSubmitWarnings(warningsList);
     if(!pass){    e.preventDefault();    }
     else{
-        console.log(e.target.toQueryString());
+        //console.log(e.target.toQueryString());
+        document.getElementById('infoform').submit();
+        /*
         var postObj = queryStringToJSON(e.target.toQueryString());
         var request = new Request({
             data: postObj,
-            url:"/register",
+            url:"register",
             onSuccess: function(resText){
-                console.log('success');
-                document.getElementById("html").innerHTML = resText;
+                console.log(resText);
+                //document.getElementById("html").innerHTML = resText;
             },
             onFailure: function(){console.log('failure');}
         });
         request.post();
+        */
     }
     //console.log(warningsList);
     //document.infoform.submit();
@@ -929,12 +933,12 @@ function showSubmitWarnings(list)
     });
     if(!isPasswordMatched())
     {
-        $("userpasswordconfirm").addClass("errorField");
-        getNextCell($("userpasswordconfirm")).innerText = "Passwords need to be matched";
+        $(document.getElementById("userpasswordconfirm")).addClass("errorField");
+        getNextCell(document.getElementById("userpasswordconfirm")).innerText = "Passwords need to be matched";
     }
     function isPasswordMatched()
     {
-        return document.infoform.userpassword.value == $("userpasswordconfirm").value;
+        return document.infoform.userpassword.value == document.getElementById("userpasswordconfirm").value;
     }
 }
 
@@ -970,12 +974,12 @@ var passwordField = document.infoform.userpassword;
 passwordField.addEventListener("keyup", handlePassword);
 
 //register for the password exposure checkbox
-$("userpasswordexpose").addEvent("click", handlePasswordExposure);
+document.getElementById("userpasswordexpose").addEventListener("click", handlePasswordExposure);
 
 //register for student type user sign-up extension
 var userTypeSelector = document.infoform.usertypeselection;
-$(userTypeSelector).addEvent("change", handleUserType);
+userTypeSelector.addEventListener("change", handleUserType);
 
-$("infoform").addEvent("submit", handleFormSubmit);
-$("submitbutton").addEvent("mouseover", handleMouseSubmit);
-$("submitbutton").addEvent("mouseout", handleMouseSubmit);
+document.getElementById("infoform").addEventListener("submit", handleFormSubmit);
+document.getElementById("submitbutton").addEventListener("mouseover", handleMouseSubmit);
+document.getElementById("submitbutton").addEventListener("mouseout", handleMouseSubmit);

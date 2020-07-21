@@ -1,95 +1,64 @@
-<!DOCTYPE html>
-<html lang="en" id="html">
-    <head>
-        <title>Sign up</title>
-        <script src="/static/javascripts/MooTools-Core-1.6.0.js"></script>
-        <script src="/static/javascripts/MooTools-More-1.6.0.js"></script>
-        <style>
-            .tablecss {
-                border: 2px solid black;
-                margin-left: auto;
-                margin-right: auto;
-                padding: 2px;
-                border-spacing: 35px;
-            }
-            .checkEmpty {
-                font-style: italic;
-                font-size: 13px;
-                width: 20%;
-            }
-            .textField {
-                padding: 3px;
-                text-align: justify;
-            }
-            .errorField {
-                border-color:#f10b0b;
-                border-style:solid;
-                border-width: 2px;
-            }
-            .passwordExposecss {
-                font-size: 13px;
-            }
-            .submitButtoncss {
-                padding: 10px 60px;
-                font-size: 14px;
-                text-align: center;
-                background-color: #360f34;
-                color: #90bba9; 
-                border: 2px solid #166483ce;
-            }
-            .button {
-            background-color: #441742;
-            color: #90bba9; 
-            border: 2px solid #166483ce;
-            }
-            .button:hover {
-                background-color: #6d2169;
-                color:#6ad3a7;
-            }
-
-            .singlerowselectorcss {
-                text-align:justify;
-            }
-            .ui-autocomplete {
-                height: 100px;
-                overflow-y: auto;
-                overflow-x: hidden;
-                padding-right: 5px;
-            }
-            .submitcellcss{
-                text-align: center;
-            }
-        </style>
-    </head>
-    <body>
-        <form id="infoform" name="infoform">
+<div class="row mt-5">
+    <div class="col-md-6 m-auto">
+      <div class="card card-body">
+        <h1 class="text-center mb-3">
+          <i class="fas fa-user-plus"></i> Register
+        </h1>
+        <%- include('partials/messages'); %> 
+        <form id="infoform" name="infoform" action="/users/register" method="POST">
             <table id="infotable" class="tablecss">
                 <tr id="fullname_row">
                     <td id="fullname_label">full name: </td>
                     <td>
-                        <input type="text" name="fullnametext" size="20" maxlength="20" class="textField" placeholder="Type your full name here"/>
+                        <input type="text"
+                        name="fullnametext"
+                        size="20"
+                        maxlength="20"
+                        class="textField"
+                        placeholder="Type your full name here"
+                        value="<%= typeof fullnametext != 'undefined' ? fullnametext : '' %>"
+                        />
                     </td>
                     <td id="fullnamecheck" class="checkEmpty"></td>
                 </tr>
                 <tr id="phone_row">
                     <td id="phone_label">phone: </td>
                     <td>
-                        <select name="regioncode" size="1"></select>
-                        <input type="text" name="phonetext" size="11" maxlength="11" class="textField" placeholder="Phone number"/>
+                        <select name="regioncode" 
+                        size="1"
+                        >
+                        </select>
+                        <input type="text" 
+                        name="phonetext" 
+                        size="11" 
+                        maxlength="11" 
+                        class="textField" 
+                        placeholder="Phone number"
+                        value="<%= typeof phonetext != 'undefined' ? phonetext : '' %>"
+                        />
                     </td>
                     <td id="phonecheck" class="checkEmpty"></td>
                 </tr>
                 <tr id="useremail_row">
                     <td id="useremail_label">email: </td>
                     <td>
-                        <input type="text" name="useremail" size="20" maxlength="40" class="textField" placeholder="example@email.com"/>
+                        <input type="text"
+                        name="useremail"
+                        size="20"
+                        maxlength="40"
+                        class="textField"
+                        placeholder="example@email.com"
+                        value="<%= typeof useremail != 'undefined' ? useremail : '' %>"
+                        />
                     </td>
                     <td id="useremailcheck" class="checkEmpty"></td>
                 </tr>
                 <tr id="usertype_row">
                     <td id="usertype_label">register as: </td>
                     <td class="singlerowselectorcss">
-                        <select name="usertypeselection" size="1">
+                        <select name="usertypeselection"
+                        size="1"
+                        >
                             <option value="selectanoption" selected="selected">select an option</option>
                             <option value="student">student</option>
                             <option value="instructor">instructor/professor</option>
@@ -100,14 +69,26 @@
                 <tr id="username_row">
                     <td id="username_label">user name: </td>
                     <td>
-                        <input type="text" name="usernametext" size="20" maxlength="20" class="textField" placeholder="Type your username"/>
+                        <input type="text"
+                        name="usernametext" 
+                        size="20" maxlength="20" 
+                        class="textField" 
+                        placeholder="Type your username"
+                        value="<%= typeof usernametext != 'undefined' ? usernametext : '' %>"
+                        />
                     </td>
                     <td id="usernamecheck" class="checkEmpty"></td>
                 </tr>
                 <tr id="userpassword_row">
                     <td id="userpassword_label">password: </td>
                     <td>
-                        <input type="password" name="userpassword" size="20" class="textField" placeholder="Type your password"/>
+                        <input type="password" 
+                        name="userpassword" 
+                        size="20" 
+                        class="textField" 
+                        placeholder="Type your password"
+                        value="<%= typeof userpassword != 'undefined' ? userpassword : '' %>"
+                        />
                         <br />
                         <label for="userpasswordexpose" class="passwordExposecss">see password</label>
                         <input type="checkBox" id = "userpasswordexpose" value="see password" />
@@ -117,7 +98,12 @@
                 <tr id="userpasswordconfirm_row">
                     <td id="userpasswordconfirm_label">confirm your password: </td>
                     <td>
-                        <input type="password" id="userpasswordconfirm" size="20" class="textField" placeholder="Retype your password"/>
+                        <input type="password" 
+                        id="userpasswordconfirm" 
+                        size="20" 
+                        class="textField" 
+                        placeholder="Retype your password"
+                        />
                     </td>
                     <td id="userpasswordconfirmcheck" class="checkEmpty"></td>
                 </tr>
@@ -129,5 +115,8 @@
             </table>
         </form>
         <script src="/static/javascripts/sign_up_console.js"></script>
-    </body>
-</html>
+      </div>
+    </div>
+</div>
+
+

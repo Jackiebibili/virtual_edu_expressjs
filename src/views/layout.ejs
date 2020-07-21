@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://bootswatch.com/4/simplex/bootstrap.min.css">
+    <script src="https://kit.fontawesome.com/2d8e745a87.js" crossorigin="anonymous"></script>
+    <title>Passport app</title>
+    <style>
+        .tablecss {
+            border: 2px solid black;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 2px;
+            border-spacing: 35px;
+        }
+        .checkEmpty {
+            font-style: italic;
+            font-size: 13px;
+            width: 20%;
+        }
+        .textField {
+            padding: 3px;
+            text-align: justify;
+        }
+        .errorField {
+            border-color:#f10b0b;
+            border-style:solid;
+            border-width: 2px;
+        }
+        .passwordExposecss {
+            font-size: 13px;
+        }
+        .submitButtoncss {
+            padding: 10px 60px;
+            font-size: 14px;
+            text-align: center;
+            background-color: #360f34;
+            color: #90bba9; 
+            border: 2px solid #166483ce;
+        }
+        .button {
+        background-color: #441742;
+        color: #90bba9; 
+        border: 2px solid #166483ce;
+        }
+        .button:hover {
+            background-color: #6d2169;
+            color:#6ad3a7;
+        }
+    
+        .singlerowselectorcss {
+            text-align:justify;
+        }
+        .ui-autocomplete {
+            height: 100px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 5px;
+        }
+        .submitcellcss{
+            text-align: center;
+        }
+    </style>
+    
+</head>
+<body>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <script src="/static/javascripts/MooTools-Core-1.6.0.js"></script>
+    <script src="/static/javascripts/MooTools-More-1.6.0.js"></script>
+    <div class="container">
+        <%- body %>
+    </div>
+
+</body>
+</html>

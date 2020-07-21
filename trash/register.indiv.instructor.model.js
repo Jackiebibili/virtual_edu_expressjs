@@ -1,4 +1,4 @@
-mongoose.connection.collection('Instructors')
+mongoose.connection.collection('Individual-Instructors')
 
 let CustomerSchema = new mongoose.Schema({
     fullnametext: {
@@ -29,19 +29,7 @@ let CustomerSchema = new mongoose.Schema({
     },
     degreeselection: {
         type: String,
-        required: false,
-    },
-    institutionnametext: {
-        type: String,
-        required: false
-    },
-    institutiontypeselection: {
-        type: String,
-        required: false
-    },
-    roleselection: {
-        type: String,
-        required: false
+        required: true
     },
     usernametext: {
         type: String,
@@ -55,4 +43,4 @@ let CustomerSchema = new mongoose.Schema({
 })
 
 
-module.exports = mongoose.model('Instructors', CustomerSchema)
+module.exports = mongoose.model('Individual-Instructors', CustomerSchema)
