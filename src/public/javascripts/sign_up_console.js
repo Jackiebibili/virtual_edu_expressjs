@@ -410,8 +410,6 @@ function phoneNumberFormat(e)
     //omitWarning(elemcheck, 3000);
     if(regExpPhone.test(elem.value))
     {
-        elemcheck.innerText = "valid number";
-        omitWarning(elemcheck, 3000);
         return true;
     }
     else
@@ -420,6 +418,44 @@ function phoneNumberFormat(e)
         omitWarning(elemcheck, 3000);
         return false;
     }
+}
+
+function isPhoneNumberAvailable()
+{
+    var text = document.infoform.phonetext.value;
+    var checkElem = document.getElementById('phonecheck');
+    var request = new Request.JSON({
+        url: "register" + "?phonetext=" + text,
+        onSuccess: function(resJSON) {
+            if(resJSON.available == true) {
+                checkElem.innerText = "available!";
+            } else {
+                checkElem.innerText = "sorry, this number has been registered";
+            }
+        },
+        onFailure: function(){ console.log('failed to connect to the server'); }
+    });
+    request.get();
+}
+
+
+
+function isEmailAvailable()
+{
+    var useremail = document.infoform.useremail.value;
+    var checkElem = document.getElementById('useremailcheck');
+    var request = new Request.JSON( {
+        url: "register" + "?useremail=" + useremail,
+        onSuccess: function(resJSON) {
+            if(resJSON.available == true) {
+                checkElem.innerText = "available";
+            } else {
+                checkElem.innerText = "sorry, this email has been registered";
+            }
+        },
+        onFailure: function(){ console.log('failed to connect to the server'); }
+    });
+    request.get();
 }
 
 function emailCheck(a)
@@ -439,8 +475,6 @@ function emailFormat(e)
     
     if(regExpEmail.test(elem.value))
     {
-        elemcheck.innerText = "valid email";
-        omitWarning(elemcheck, 3000);
         return true;
     }
     else
@@ -450,6 +484,35 @@ function emailFormat(e)
         return false;
     }
 }
+
+
+
+function isUsernameAvailable()
+{
+    var username = document.infoform.usernametext.value;
+    var usertypeIndex = document.infoform.usertypeselection.selectedIndex;
+    var checkElem = document.getElementById('usernamecheck');
+    if(userTypeSelector == 0)
+    {
+        //user did not select a usertype
+        checkElem.innerText = "select a user type before going on";
+        return;
+    }
+    var request = new Request.JSON({
+        url: "register" + "?usernametext=" + username + "&usertypeindex=" + usertypeIndex,
+        onSuccess: function(resJSON) {
+            if(resJSON.available == true) {
+                checkElem.innerText = "available!";
+            } else {
+                checkElem.innerText = "sorry, this username has been registered";
+            }
+        },
+        onFailure: function(){ console.log('failed to connect to the server'); }
+    });
+    request.get();
+}
+
+
 
 function passwordCheck(a)
 {
@@ -572,6 +635,8 @@ function passwordIdentity(e)
     }
 }
 
+
+
 function selectionBoxNonDefault(a)
 {
     return a.selectedIndex != 0;
@@ -668,6 +733,7 @@ function handleUsername(e)
     }
     
     //ajax check availability
+    isUsernameAvailable();
 }
 
 /**
@@ -683,7 +749,8 @@ function handlePhone(e)
         clearRepeatedTimerToOne(timerId, handlePhone.emptyStrTimerList);
         return;
     }
-    phoneNumberFormat(e);
+    if(phoneNumberFormat(e)){    isPhoneNumberAvailable();    }
+
 }
 
 /**
@@ -699,8 +766,7 @@ function handleEmail(e)
         clearRepeatedTimerToOne(timerId, handleEmail.emptyStrTimerList);
         return;
     }
-    emailFormat(e);
-
+    if(emailFormat(e)){    isEmailAvailable();    }
 }
 
 /**

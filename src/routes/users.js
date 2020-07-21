@@ -2,17 +2,115 @@ let express = require('express')
 let router = express.Router()
 const bcrypt = require('bcryptjs')
 let bodyParser = require('body-parser')
+const e = require('express')
 let urlencodedParser = bodyParser.urlencoded({extended : false})
 
 router.get('/login', (req, res) => res.render('login'))
+
+
+//POST to server --ajax test to see user availability
+//1. phone number(phonetext itself)
+//2. email address(useremail itself)
+//3. username(usernametext itself)
+router.get('/register', (req, res, next) => {
+    let phone = req.query.phonetext
+    if(phone) {
+        //see if the phone number has registered in student database
+        let Model = require('../models/register.student.model')
+        Model.findOne({phonetext: phone})
+            .then(user => {
+                if(user) {
+                    //the requested user exists
+                    res.json({phonetext: phone, available: false})
+                } else {
+                    //see if the phone number has registered in instructor database
+                    Model = require('../models/register.instructor.model')
+                    Model.findOne({phonetext: phone})
+                        .then(user => {
+                            if(user) {
+                                res.json({phonetext: phone, available: false})
+                            } else {
+                                res.json({phonetext: phone, available: true})
+                            }
+                        })
+                }
+            })
+    } else {
+        //return res.status(400).send('Illegal request')
+        next()
+    }
+})
+
+router.get('/register', (req, res, next) => {
+    let email = req.query.useremail
+    if(email) {
+        //see if the email has registered in student database
+        let Model = require('../models/register.student.model')
+        Model.findOne({useremail: email})
+            .then(user => {
+                if(user) {
+                    //the requested user exists
+                    res.json({useremail: email, available: false})
+                } else {
+                    //see if the email has registered in instructor database
+                    Model = require('../models/register.instructor.model')
+                    Model.findOne({useremail: email})
+                        .then(user => {
+                            if(user) {
+                                res.json({useremail: email, available: false})
+                            } else {
+                                res.json({useremail: email, available: true})
+                            }
+                        })
+                }
+            })
+    } else {
+        //return res.status(400).send('Illegal request')
+        next()
+    }})
+
+
+router.get('/register', (req, res, next) => {
+    //const usertypeOptions = ["selectanoption", "student", "instructor"]
+    let username = req.query.usernametext
+    let usertypeIndex = req.query.usertypeindex
+    if(username && usertypeIndex) {
+        if(usertypeIndex == "1") {
+            //see if the username has registered in student database
+            let Model = require('../models/register.student.model')
+            Model.findOne({usernametext: username})
+                .then(user => {
+                    if(user) {
+                        //the requested user exists
+                        res.json({usernametext: username, available: false})
+                    } else {
+                        res.json({usernametext: username, available: true})
+                    }   
+                })
+        } else if(usertypeIndex == "2") {
+            //see if the username has registered in instructor database
+            let Model = require('../models/register.instructor.model')
+            Model.findOne({usernametext: username})
+                .then(user => {
+                    if(user) {
+                        res.json({usernametext: username, available: false})
+                    } else {
+                        res.json({usernametext: username, available: true})
+                    }
+                })
+        } else {
+            return res.status(400).send('type out of bound')
+        }
+    } else {
+        next()
+    }
+})
+
+
 router.get('/register', (req, res) => res.render('sign_up_console'))
 
-//const studentUser = require('../config/config.student').studentObj
-//const indivInstrucUser = require('../config/config.indiv.instructor').individualInstructorObj
-//const orgInstrucUser = require('../config/config.org.instructor').organzatinoalInstructorObj
 
-
-//POST to server
+//POST to server --register the user with the info provided
 let CustomerModel = null;
 router.post('/register', (req, res) => {
     let errors = []
@@ -55,9 +153,7 @@ router.post('/register', (req, res) => {
             .then(user => {
                 if(user) {
                     //the requested user has existed
-                    console.log(user)
                     errors.push({ msg: 'Email is already registered'})
-                    console.log(req.body)
                     res.render('sign_up_console', {
                         errors,
                         fullnametext,
@@ -117,9 +213,7 @@ router.post('/register', (req, res) => {
             .then(user => {
                 if(user) {
                     //the requested user has existed
-                    console.log(user)
                     errors.push({ msg: 'Email is already registered'})
-                    console.log(req.body)
                     res.render('sign_up_console', {
                         errors,
                         fullnametext,
