@@ -13,13 +13,13 @@ var formCheckList = [
     },
     {
         name:"phonetext",
-        method:[phoneNumberCheck],
-        prompt:["Enter a valid phone #"]
+        method:[phoneNumberCheck, canSubmitPhoneNumber],
+        prompt:["Enter a valid phone #", "This number has been registered"]
     },
     {
         name:"useremail",
-        method:[emailCheck],
-        prompt:["Enter a valid email address"]
+        method:[emailCheck, canSubmitEmail],
+        prompt:["Enter a valid email address", "This email has been registered"]
     },
     {
         name:"usertypeselection",
@@ -28,8 +28,8 @@ var formCheckList = [
     },
     {
         name:"usernametext",
-        method:[isNonEmptyField],
-        prompt:["Enter a valid user name"]
+        method:[isNonEmptyField, canSubmitUsername],
+        prompt:["Enter a valid user name", "This username has been registered"]
     },
     {
         name:"userpassword",
@@ -391,6 +391,7 @@ function isEmptyStr(e)
 }
 
 
+
 function phoneNumberCheck(a)
 {
     //var val = document.infoform.phonetext.value;
@@ -420,6 +421,36 @@ function phoneNumberFormat(e)
     }
 }
 
+async function canSubmitPhoneNumber()
+{
+    try{
+        //await for submitPhoneNumber to resolve or reject
+        //would throw error before returning
+        return await submitPhoneNumber();
+    } catch(e) {
+        return null;
+    }
+}
+
+function submitPhoneNumber()
+{
+    return new Promise((resolve, reject) => {
+        var text = document.infoform.phonetext.value;
+        var request = new Request.JSON({
+            url: "register" + "?phonetext=" + text,
+            onSuccess: function(resJSON) {
+                if(resJSON.available == true) {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
+            },
+            onFailure: reject
+        });
+        request.get();
+    });
+}
+
 function isPhoneNumberAvailable()
 {
     var text = document.infoform.phonetext.value;
@@ -439,6 +470,36 @@ function isPhoneNumberAvailable()
 }
 
 
+
+async function canSubmitEmail()
+{
+    try{
+        //await for submitEmail to resolve or reject
+        //would throw error before returning
+        return await submitEmail();
+    } catch(e) {
+        return null;
+    }
+}
+
+function submitEmail()
+{
+    return new Promise((resolve, reject) => {
+        var useremail = document.infoform.useremail.value;
+        var request = new Request.JSON( {
+            url: "register" + "?useremail=" + useremail,
+            onSuccess: function(resJSON) {
+                if(resJSON.available == true) {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
+            },
+            onFailure: reject
+        });
+        request.get();
+    });
+}
 
 function isEmailAvailable()
 {
@@ -486,6 +547,42 @@ function emailFormat(e)
 }
 
 
+
+async function canSubmitUsername()
+{
+    try{
+        //await for submitEmail to resolve or reject
+        //would throw error before returning
+        return await submitUsername();
+    } catch(e) {
+        return null;
+    }
+}
+
+function submitUsername()
+{
+    return new Promise((resolve, reject) => {
+        var username = document.infoform.usernametext.value;
+        var usertypeIndex = document.infoform.usertypeselection.selectedIndex;
+        if(userTypeSelector == 0) {
+            //user did not select a usertype
+            reject();
+        } else {
+            var request = new Request.JSON({
+                url: "register" + "?usernametext=" + username + "&usertypeindex=" + usertypeIndex,
+                onSuccess: function(resJSON) {
+                    if(resJSON.available == true) {
+                        resolve(true);
+                    } else {
+                        resolve(false);
+                    }
+                },
+                onFailure: reject
+            });
+            request.get();    
+        }
+    });
+}
 
 function isUsernameAvailable()
 {
@@ -948,6 +1045,11 @@ function handleFormSubmit(e)
                         if(!formCheckList[j].method[k](htmlElem))
                         {
                             warningsList.push([htmlElem, formCheckList[j].prompt[k]]); 
+                            if(formCheckList[j].method[k] == phoneNumberCheck ||
+                               formCheckList[j].method[k] == emailCheck ||
+                               (htmlElem.name == "usernametext" &&
+                                formCheckList[j].method[k] == isNonEmptyField))
+                            {   return; }
                             pass = false;
                         }
                     }
@@ -996,7 +1098,14 @@ function showSubmitWarnings(list)
     list.forEach(function(elem){
         $(elem[0]).addClass("errorField");
         getNextCell(elem[0]).innerText = elem[1];
+        //mark the confirmpassword field if not matched
+        if(elem[1] == "Passwords need to be matched")
+        {
+            $(document.getElementById("userpasswordconfirm")).addClass("errorField");
+            getNextCell(document.getElementById("userpasswordconfirm")).innerText = "Passwords need to be matched";    
+        }
     });
+    /*
     if(!isPasswordMatched())
     {
         $(document.getElementById("userpasswordconfirm")).addClass("errorField");
@@ -1006,6 +1115,7 @@ function showSubmitWarnings(list)
     {
         return document.infoform.userpassword.value == document.getElementById("userpasswordconfirm").value;
     }
+    */
 }
 
 document.infoform.regioncode.onload = addCountryPhoneCodesListElements();
