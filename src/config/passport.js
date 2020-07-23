@@ -51,7 +51,6 @@ module.exports = function(passport) {
             //match user
             instructorModel.findOne({ useremail: email })
                 .then(user => {
-                    console.log(user)
                     if(!user) {
                         return done(null, false, { message: 'That email is not registered'})
                     }
@@ -59,7 +58,6 @@ module.exports = function(passport) {
                     //match the password
                     bcrypt.compare(password, user.userpassword, (err, isMatch) => {
                         if(err) throw err;
-                        console.log(isMatch)
 
                         if(isMatch) {
                             return done(null, user)
@@ -76,7 +74,6 @@ module.exports = function(passport) {
             //match user
             studentModel.findOne({ useremail: email })
                 .then(user => {
-                    console.log(user)
                     if(!user) {
                         return done(null, false, { message: 'That email is not registered'})
                     }
@@ -84,7 +81,7 @@ module.exports = function(passport) {
                     //match the password
                     bcrypt.compare(password, user.userpassword, (err, isMatch) => {
                         if(err) throw err;
-                        console.log(isMatch)
+
                         if(isMatch) {
                             return done(null, user)
                         } else {

@@ -111,28 +111,30 @@ function addStudentTypeElements()
                 "college student"];
     var yearStr = obtainYearString(1970, 2020);
 
-    var parentTable = document.getElementById("infotable").firstChild.nextSibling;
+    var parentTable = document.getElementById("infoform");
     var posLowerBound = document.getElementById('username_row');
     var gradeLevelAttr = {
-        id:"gradelevel_row"
+        id:"gradelevel_row",
+        class:"form-group"
     };
     var yearOfBrithAttr = {
-        id:"yearofbirth_row"
+        id:"yearofbirth_row",
+        class:"form-group"
     };
     var gradelevelSelectAttr = {
         id:"gradelevelselect",
         name:"gradelevelselect",
         size:"1",
-        class:"singlerowselectorcss"
+        class:"form-control"
     };
     var yearOfBirthSelectAttr = {
         id:"yearofbirthselect",
         name:"yearofbirthselect",
         size:"1",
-        class:"singlerowselectorcss"
+        class:"form-control"
     };
-    var gradelevel_row = new Element("tr", gradeLevelAttr);
-    var yearOfBirth_row = new Element("tr", yearOfBrithAttr);
+    var gradelevel_row = new Element("div", gradeLevelAttr);
+    var yearOfBirth_row = new Element("div", yearOfBrithAttr);
     var gradelevelSelect = new Element("select", gradelevelSelectAttr);
     var yearOfBirthSelect = new Element("select", yearOfBirthSelectAttr);
 
@@ -144,12 +146,12 @@ function addStudentTypeElements()
         yearOfBirthSelect.add(new Option(year), null);
     })
 
-    gradelevel_row.adopt(new Element("td", {text:"grade: "}));
-    gradelevel_row.adopt(new Element("td", {class:"singlerowselectorcss"}).adopt(gradelevelSelect));
-    gradelevel_row.adopt(new Element("td", {class:"checkEmpty"}));
-    yearOfBirth_row.adopt(new Element("td", {text:"year of birth: "}));
-    yearOfBirth_row.adopt(new Element("td", {class:"singlerowselectorcss"}).adopt(yearOfBirthSelect));
-    yearOfBirth_row.adopt(new Element("td", {class:"checkEmpty"}));
+    gradelevel_row.adopt(new Element("label", {class:"col-form-label", text:"Grade"}));
+    gradelevel_row.adopt(gradelevelSelect);
+    gradelevel_row.adopt(new Element("div", {class:"", text:""}));
+    yearOfBirth_row.adopt(new Element("label", {class:"col-form-label", text:"Year of birth"}));
+    yearOfBirth_row.adopt(yearOfBirthSelect);
+    yearOfBirth_row.adopt(new Element("div", {class:"", text:""}));
 
     parentTable.insertBefore(gradelevel_row, posLowerBound);
     parentTable.insertBefore(yearOfBirth_row, posLowerBound);
@@ -163,20 +165,22 @@ function addInstructorTypeSelector()
 {
     //dynamically add instructor user type elements
     var typeOfInstructorStr = ["select an option", "individual educator", "inistutional/organizational educator"];
-    var parentTable = document.getElementById("infotable").firstChild.nextSibling;
+    var parentTable = document.getElementById("infoform");
     var posLowerBound = document.getElementById('username_row');
     var typeOfInstructorSelectAttr = {
         id:"typeofinstructorselect",
-        name:"typeofinstructorselect"
+        name:"typeofinstructorselect",
+        class:"form-control",
+        size:"1"
     };
-    var typeOfInstructor_row = new Element("tr", {id:"typeofinstructor_row"});
+    var typeOfInstructor_row = new Element("div", {id:"typeofinstructor_row", class:"form-group"});
     var typeOfInstructorSelect = new Element("select", typeOfInstructorSelectAttr);
     typeOfInstructorStr.forEach(function(elem){
         typeOfInstructorSelect.add((new Option(elem)), null);
     });
-    typeOfInstructor_row.adopt(new Element("td", {text:"type of instructor: "}));
-    typeOfInstructor_row.adopt((new Element("td", {class:"singlerowselectorcss"})).adopt(typeOfInstructorSelect));
-    typeOfInstructor_row.adopt(new Element("td", {class:"checkEmpty"}));
+    typeOfInstructor_row.adopt(new Element("label", {text:"Instructor type", class:"col-form-label"}));
+    typeOfInstructor_row.adopt(typeOfInstructorSelect);
+    typeOfInstructor_row.adopt(new Element("div", {class:"", text:""}));
 
     parentTable.insertBefore(typeOfInstructor_row, posLowerBound);
     typeOfInstructorSelect.addEventListener("change", handleInstructorType);
@@ -189,16 +193,16 @@ function addIndividualTypeElements()
 {
     var degreeList = ["select an option", "Some college", "Associate degree", "Bachelor degree",
                         "Master degree", "Doctoral degree", "Post-doctoral degree"];
-    var parentTable = document.getElementById("infotable").firstChild.nextSibling;
+    var parentTable = document.getElementById("infoform");
     var posLowerBound = document.getElementById('username_row');
-    var degree_row = new Element("tr", {id: "degree_row"});
-    var degreeSelect = new Element("select", {id: "degreeselection", name:"degreeselection"});
+    var degree_row = new Element("div", {id: "degree_row", class:"form-group"});
+    var degreeSelect = new Element("select", {id: "degreeselection", name:"degreeselection", class:"form-control"});
     degreeList.forEach(function(elem){
         degreeSelect.add((new Option(elem)), null);
     });
-    degree_row.adopt(new Element("td", {id:"degree_label", text:"degree level: "}));
-    degree_row.adopt((new Element("td", {class: "singlerowselectorcss"}).adopt(degreeSelect)));
-    degree_row.adopt(new Element("td", {class:"checkEmpty"}));
+    degree_row.adopt(new Element("label", {id:"degree_label", class:"col-form-label", text:"Your degree"}));
+    degree_row.adopt(degreeSelect);
+    degree_row.adopt(new Element("div", {class:"", text:""}));
 
     parentTable.insertBefore(degree_row, posLowerBound);
     degreeSelect.addEventListener("change", handleSelectionBox);
@@ -218,29 +222,29 @@ function testOptionsExceed(obj, regrex)
 }
 
 function addInstitutionToSelect(keyEntered)
+{
+    var datalist = document.getElementById("institutionslist");
+    if(keyEntered.length <= 5)
     {
-        var datalist = document.getElementById("institutionslist");
-        if(keyEntered.length <= 5)
-        {
-            datalist.empty();
-            return;
-        }
         datalist.empty();
-        var keyregex = new RegExp(keyEntered, "i");
-
-        if(testOptionsExceed(getParseObject.obj, keyregex))
-        {
-            getParseObject.obj.forEach(function(elem){
-                if(elem.institution.search(keyregex) != -1)
-                {
-                    var option = new Element("option", {
-                        value: elem.institution
-                    });
-                    datalist.appendChild(option);
-                }
-            });
-        } 
+        return;
     }
+    datalist.empty();
+    var keyregex = new RegExp(keyEntered, "i");
+
+    if(testOptionsExceed(getParseObject.obj, keyregex))
+    {
+        getParseObject.obj.forEach(function(elem){
+            if(elem.institution.search(keyregex) != -1)
+            {
+                var option = new Element("option", {
+                    value: elem.institution
+                });
+                datalist.appendChild(option);
+            }
+        });
+    } 
+}
 
 
 
@@ -251,7 +255,7 @@ function getParseObject(json)
 }
 function addOrganzationalTypeElements()
 {
-    var parentTable = document.getElementById("infotable").firstChild.nextSibling;
+    var parentTable = document.getElementById("infoform");
     var posLowerBound = document.getElementById('username_row');
     //fetch the institutions list
     var requestInstitutionList = new Request.JSON({
@@ -267,9 +271,9 @@ function addOrganzationalTypeElements()
                          "Associate professor", "Assistant professor", "Instructor",
                          "Limited appointee", "Student assistant", "Staff"];
     //create the rows
-    var institutionList_row = new Element("tr", {id:"institution_row"});
-    var institutionType_row = new Element("tr", {id:"institutiontype_row"});
-    var role_row = new Element("tr", {id:"role_row"});
+    var institutionList_row = new Element("div", {id:"institution_row", class:"form-group"});
+    var institutionType_row = new Element("div", {id:"institutiontype_row", class:"form-group"});
+    var role_row            = new Element("div", {id:"role_row", class:"form-group"});
     //create the field elements
     var institutionName = new Element("input", {
         id:"institutionnametext",
@@ -278,7 +282,8 @@ function addOrganzationalTypeElements()
         size:"30",
         maxlength:"45",
         list:"institutionslist",
-        placeHolder:"Enter your institution/org"
+        placeHolder:"Enter your institution/org",
+        class:"form-control custom-select"
     });
     var institutionList = new Element("datalist", {
         id:"institutionslist"
@@ -286,12 +291,14 @@ function addOrganzationalTypeElements()
     var institutionTypeSelect = new Element("select", {
         id:"institutiontypeselection",
         name: "institutiontypeselection",
-        size:"1"
+        size:"1",
+        class:"form-control"
     });
     var roleSelect = new Element("select", {
         id:"roleselection",
         name:"roleselection",
-        size:"1"
+        size:"1",
+        class:"form-control"
     });
     //add options into selection boxes
     institutionTypesList.forEach(function(elem){
@@ -301,15 +308,15 @@ function addOrganzationalTypeElements()
         roleSelect.add(new Option(elem), null);
     })
 
-    institutionList_row.adopt(new Element("td",{text:"institution: "}));
-    institutionList_row.adopt((new Element("td",{class:"singlerowselectorcss"})).adopt([institutionName,institutionList]));
-    institutionList_row.adopt(new Element("td", {class:"checkEmpty"}));
-    institutionType_row.adopt(new Element("td", {text:"organzational type: "}));
-    institutionType_row.adopt((new Element("td", {class:"singlerowselectorcss"})).adopt(institutionTypeSelect));
-    institutionType_row.adopt(new Element("td", {class:"checkEmpty"}));
-    role_row.adopt(new Element("td", {text:"your current role: "}));
-    role_row.adopt((new Element("td", {class:"singlerowselectorcss"})).adopt(roleSelect));
-    role_row.adopt(new Element("td", {class:"checkEmpty"}));
+    institutionList_row.adopt(new Element("label",{text:"Institution", class:"col-form-label"}));
+    institutionList_row.adopt([institutionName,institutionList]);
+    institutionList_row.adopt(new Element("div", {class:"", text:""}));
+    institutionType_row.adopt(new Element("label", {text:"Institutional type", class:"col-form-label"}));
+    institutionType_row.adopt(institutionTypeSelect);
+    institutionType_row.adopt(new Element("div", {class:"", text:""}));
+    role_row.adopt(new Element("label", {text:"Your current role", class:"col-form-label"}));
+    role_row.adopt(roleSelect);
+    role_row.adopt(new Element("div", {class:"", text:""}));
     parentTable.insertBefore(institutionList_row, posLowerBound);
     parentTable.insertBefore(institutionType_row, posLowerBound);
     parentTable.insertBefore(role_row, posLowerBound);
@@ -321,28 +328,40 @@ function addOrganzationalTypeElements()
 
 
 
+/**
+ * The getElems function retrieves the field element associated with the
+ * Event e and the checkpoint element(from which to show the message)
+ * 
+ * Limitation: cannot used for password exposure checkpoint
+ * 
+ * @param {Event} e 
+ */
 function getElems(e)
 {
     var elem = e.target;
     var elemcheck;
-    if(elem.parentNode.nextSibling.nodeType == 3)
-    {
-        elemcheck = elem.parentNode.nextSibling.nextSibling;
-    }
+    if(elem.nextSibling.nodeType == 3)
+    {   elemcheck = elem.nextSibling.nextSibling;   }
     else
-    {
-        elemcheck = elem.parentNode.nextSibling;
-    }
+    {   elemcheck = elem.nextSibling;   }
     var arr = [elem, elemcheck];
     return arr;
 }
 
+/**
+ * The getNextCell function retrieves the checkpoint field associated
+ * with the field element provided in the argument
+ * 
+ * Limitation: cannot used for password exposure checkpoint
+ * 
+ * @param {DOM element} elem 
+ */
 function getNextCell(elem)
 {
-    if(elem.parentNode.nextSibling.nodeType == 3)
-    {return elem.parentNode.nextSibling.nextSibling;}
+    if(elem.nextSibling.nodeType == 3)
+    {   return elem.nextSibling.nextSibling; }
     else
-    {return elem.parentNode.nextSibling;}
+    {   return elem.nextSibling; }
 }
 
 
@@ -371,23 +390,35 @@ function isNonEmptyField(a)
 
 function isEmptyStr(e)
 {
-    var elemArr = getElems(e);
-    var elem = elemArr[0];
-    var elemcheck = elemArr[1];
+    var elem, elemcheck;
+    if(e.target.name != "userpassword")
+    {
+        var elemArr = getElems(e);
+        elem = elemArr[0];
+        elemcheck = elemArr[1];
+    }
+    else
+    {
+        elem = e.target;
+        elemcheck = document.getElementById("userpasswordcheck");
+    }
 
     //test for empty string input
     var warnEmptyField = "Empty field";
-    if(elem.value == "" && elemcheck.innerText != warnEmptyField)
+    if(elem.value == "")
     {
         elemcheck.innerText = warnEmptyField;
-        return omitWarning(elemcheck, 3000);
+        $(elem).removeClass("is-valid").addClass("is-invalid");
+        $(elemcheck).removeClass("valid-feedback").addClass("invalid-feedback");
+        return true;
     }
-    else if(elem.value != "")
+    else
     {
         elemcheck.innerText = "";
+        $(elem).removeClass("is-invalid").addClass("is-valid");
+        $(elemcheck).removeClass("invalid-feedback").addClass("valid-feedback");
         return false;
     }
-    return omitWarning(elemcheck, 3000);
 }
 
 
@@ -407,16 +438,18 @@ function phoneNumberFormat(e)
 
     var regExpPhone = /^\d{11}$/;    //format for mainland China domestic cell phone #
 
-    //elemcheck.innerText = (regExpPhone.test(elem.value)? "valid number" : "invalid");
-    //omitWarning(elemcheck, 3000);
     if(regExpPhone.test(elem.value))
     {
+        elemcheck.innerText = "";
+        $(elem).removeClass("is-invalid").addClass("is-valid");
+        $(elemcheck).removeClass("invalid-feedback").addClass("valid-feedback");
         return true;
     }
     else
     {
-        elemcheck.innerText = "invalid";
-        omitWarning(elemcheck, 3000);
+        elemcheck.innerText = "Invalid format!";
+        $(elem).removeClass("is-valid").addClass("is-invalid");
+        $(elemcheck).removeClass("valid-feedback").addClass("invalid-feedback");
         return false;
     }
 }
@@ -453,15 +486,19 @@ function submitPhoneNumber()
 
 function isPhoneNumberAvailable()
 {
-    var text = document.infoform.phonetext.value;
+    var text = document.infoform.phonetext;
     var checkElem = document.getElementById('phonecheck');
     var request = new Request.JSON({
-        url: "register" + "?phonetext=" + text,
+        url: "register" + "?phonetext=" + text.value,
         onSuccess: function(resJSON) {
             if(resJSON.available == true) {
-                checkElem.innerText = "available!";
+                $(text).removeClass("is-invalid").addClass("is-valid");
+                $(checkElem).removeClass("invalid-feedback").addClass("valid-feedback");        
+                checkElem.innerText = "Available!";
             } else {
-                checkElem.innerText = "sorry, this number has been registered";
+                $(text).removeClass("is-valid").addClass("is-invalid");
+                $(checkElem).removeClass("valid-feedback").addClass("invalid-feedback");
+                checkElem.innerText = "Sorry, this number has been registered!";
             }
         },
         onFailure: function(){ console.log('failed to connect to the server'); }
@@ -503,15 +540,19 @@ function submitEmail()
 
 function isEmailAvailable()
 {
-    var useremail = document.infoform.useremail.value;
+    var useremail = document.infoform.useremail;
     var checkElem = document.getElementById('useremailcheck');
     var request = new Request.JSON( {
-        url: "register" + "?useremail=" + useremail,
+        url: "register" + "?useremail=" + useremail.value,
         onSuccess: function(resJSON) {
             if(resJSON.available == true) {
-                checkElem.innerText = "available";
+                $(useremail).removeClass("is-invalid").addClass("is-valid");
+                $(checkElem).removeClass("invalid-feedback").addClass("valid-feedback");
+                checkElem.innerText = "Available!";
             } else {
-                checkElem.innerText = "sorry, this email has been registered";
+                $(useremail).removeClass("is-valid").addClass("is-invalid");
+                $(checkElem).removeClass("valid-feedback").addClass("invalid-feedback");
+                checkElem.innerText = "Sorry, this email has been registered!";
             }
         },
         onFailure: function(){ console.log('failed to connect to the server'); }
@@ -536,12 +577,16 @@ function emailFormat(e)
     
     if(regExpEmail.test(elem.value))
     {
+        $(elem).removeClass("is-invalid").addClass("is-valid");
+        $(elemcheck).removeClass("invalid-feedback").addClass("valid-feedback");
+        elemcheck.innerText = "";
         return true;
     }
     else
     {
-        elemcheck.innerText = "invalid";
-        omitWarning(elemcheck, 3000);
+        $(elem).removeClass("is-valid").addClass("is-invalid");
+        $(elemcheck).removeClass("valid-feedback").addClass("invalid-feedback");
+        elemcheck.innerText = "Invalid format!";
         return false;
     }
 }
@@ -586,25 +631,40 @@ function submitUsername()
 
 function isUsernameAvailable()
 {
-    var username = document.infoform.usernametext.value;
+    var username = document.infoform.usernametext;
     var usertypeIndex = document.infoform.usertypeselection.selectedIndex;
     var checkElem = document.getElementById('usernamecheck');
     if(userTypeSelector == 0)
     {
         //user did not select a usertype
-        checkElem.innerText = "select a user type before going on";
+        checkElem.innerText = "Select a user type before going on";
         return;
     }
     var request = new Request.JSON({
-        url: "register" + "?usernametext=" + username + "&usertypeindex=" + usertypeIndex,
+        url: "register" + "?usernametext=" + username.value + "&usertypeindex=" + usertypeIndex,
         onSuccess: function(resJSON) {
             if(resJSON.available == true) {
-                checkElem.innerText = "available!";
+                $(username).removeClass("is-invalid").addClass("is-valid");
+                $(checkElem).removeClass("invalid-feedback").addClass("valid-feedback");
+                checkElem.innerText = "Available!";
             } else {
-                checkElem.innerText = "sorry, this username has been registered";
+                $(username).removeClass("is-valid").addClass("is-invalid");
+                $(checkElem).removeClass("valid-feedback").addClass("invalid-feedback");
+                checkElem.innerText = "Sorry, this username has been registered!";
             }
         },
-        onFailure: function(){ console.log('failed to connect to the server'); }
+        onFailure: function() {
+            //console.log('failed to connect to the server'); 
+            //user type is not selected: warn the user about it
+            $(username).removeClass("is-valid").addClass("is-invalid");
+            $(checkElem).removeClass("valid-feedback").addClass("invalid-feedback");
+            checkElem.innerText = "Sorry, please select a user type!";
+            var select = document.infoform.usertypeselection;
+            var check = document.getElementById("usertypecheck");
+            $(select).removeClass("is-valid").addClass("is-invalid");
+            $(check).removeClass("valid-feedback").addClass("invalid-feedback");
+            check.innerText = "Select an option prior to typing a username.";
+        }
     });
     request.get();
 }
@@ -623,7 +683,7 @@ function passwordCheck(a)
                         regNumber, regSpecial];
     for(var i = 0; i < regExpList.length; i++)
     {
-        if(!regExpList[i].test(a.value)){return false;}
+        if(!regExpList[i].test(a.value)){   return false;   }
     }
     return true;
 }
@@ -646,9 +706,8 @@ function passwordFormat(e)
                         "At least one special char"
                         ];
 
-    var elemArr = getElems(e);
-    var elem = elemArr[0];
-    var elemcheck = elemArr[1]; 
+    var elem = document.infoform.userpassword;
+    var elemcheck = document.getElementById("userpasswordcheck");
 
     var elemStr = elem.value;
     
@@ -669,14 +728,39 @@ function passwordFormat(e)
     }
 
     elemcheck.innerHTML = passwordFormat.insertStr;
-    if(passwordFormat.insertStr == ""){return true;}
-    else{return false;}
+    if(passwordFormat.insertStr == ""){
+        $(elem).removeClass("is-invalid").addClass("is-valid");
+        $(elemcheck).removeClass("invalid-feedback").addClass("valid-feedback");
+        return true;    
+    }
+    else{
+        $(elem).removeClass("is-valid").addClass("is-invalid");
+        $(elemcheck).removeClass("valid-feedback").addClass("invalid-feedback");
+        return false;   
+    }
 }
 
 function passwordExposure(e)
 {
-    var checkBox = e.target;
-    var parent = checkBox.parentNode;
+    var img, span;
+    if(e.target.tagName == "span")
+    {
+        span = e.target;
+    }
+    else
+    {
+        span = document.getElementById("userpasswordexposespan");
+    }
+
+    if(span.firstChild.nodeType == 3)
+    {
+        img = span.firstChild.nextSibling;
+    }
+    else
+    {
+        img = span.firstChild;
+    }
+    var parent = span.parentNode.parentNode;
     var elem;
     if(parent.firstChild.nodeType == 3)
     {
@@ -686,17 +770,19 @@ function passwordExposure(e)
     {
         elem = parent.firstChild;
     }
-
-    if(checkBox.checked)
+    var imgElem = document.getElementById("userpasswordexposeimg");
+    if(img.alt == "showBtn")
     {
         elem.setProperty("type", "text");
+        imgElem.setProperty("src", "/static/images/hidePwBnt.svg")
+        imgElem.setProperty("alt", "hideBtn");
     }
     else
     {
         elem.setProperty("type", "password");
+        imgElem.setProperty("src", "/static/images/showPwBnt.svg");
+        imgElem.setProperty("alt", "showBtn");
     }
-
-
 }
 
 function passwordIdentityConfirm(e)
@@ -706,15 +792,25 @@ function passwordIdentityConfirm(e)
     var elempasswordcheck = elemArr[0];
     var elemcheck = elemArr[1];
 
-    elemcheck.innerText = (elempassword.value != elempasswordcheck.value ? "passwords not matched" : "matched");
-    omitWarning(elemcheck, 3000);
+    if(elempassword.value != elempasswordcheck.value)
+    {
+        elemcheck.innerText = "passwords are not matched";
+        $(elempasswordcheck).removeClass("is-valid").addClass("is-invalid");
+        $(elemcheck).removeClass("valid-feedback").addClass("invalid-feedback");
+    }
+    else
+    {
+        elemcheck.innerText = "passwords are matched";
+        $(elempasswordcheck).removeClass("is-invalid").addClass("is-valid");
+        $(elemcheck).removeClass("invalid-feedback").addClass("valid-feedback");
+    }
 }
 
 function passwordIdentityCheck(a)
 {
     //var pw1 = document.infoform.userpassword;
     var pw2 = document.getElementById("userpasswordconfirm").value;
-    return a.value == pw2;
+    return (a.value && a.value == pw2);
 }
 
 function passwordIdentity(e)
@@ -723,12 +819,28 @@ function passwordIdentity(e)
     //only check for non-empty re-enter password field
     if(elempasswordcheck.value != "")
     {
-        var elemArr = getElems(e);
-        var elempassword = elemArr[0];
-        var elemcheck = document.getElementById("userpasswordconfirmcheck");
+        var elempassword = document.infoform.userpassword;
+        var elemCheck = document.getElementById("userpasswordcheck");
+        var elemConfirmCheck = document.getElementById("userpasswordconfirmcheck");
     
-        elemcheck.innerText = (elempassword.value != elempasswordcheck.value ? "passwords not matched" : "matched");
-        omitWarning(elemcheck, 3000);
+        if(elempassword.value != elempasswordcheck.value)
+        {
+            elemCheck.innerText = "passwords are not matched";
+            elemConfirmCheck.innerText = "passwords are not matched";
+            $(elempassword).removeClass("is-valid").addClass("is-invalid");
+            $(elempasswordcheck).removeClass("is-valid").addClass("is-invalid");
+            $(elemCheck).removeClass("valid-feedback").addClass("invalid-feedback");
+            $(elemConfirmCheck).removeClass("valid-feedback").addClass("invalid-feedback");
+        }
+        else
+        {
+            elemCheck.innerText = "passwords are matched";
+            elemConfirmCheck.innerText = "passwords are matched";
+            $(elempassword).removeClass("is-invalid").addClass("is-valid");
+            $(elempasswordcheck).removeClass("is-invalid").addClass("is-valid");
+            $(elemCheck).removeClass("invalid-feedback").addClass("valid-feedback");
+            $(elemConfirmCheck).removeClass("invalid-feedback").addClass("valid-feedback");
+        }
     }
 }
 
@@ -739,6 +851,7 @@ function selectionBoxNonDefault(a)
     return a.selectedIndex != 0;
 }
 
+/*
 function clearAllRepeatedTimers(timerList)
 {
     if(timerList.length > 0)
@@ -766,7 +879,7 @@ function clearRepeatedTimerToOne(timerId, timerList)
         }
     }
 }
-
+*/
 
 /**
  * "onclick" event handler function
@@ -777,7 +890,7 @@ function handlePasswordExposure(e)
     passwordExposure(e);
 }
 
-
+/*
 function onclickClearCheckText(e, timerList)
 {
     if(e.type == "click")
@@ -797,6 +910,8 @@ handlePhone.emptyStrTimerList    = [];
 handleEmail.emptyStrTimerList    = [];
 handlePassword.emptyStrTimerList = [];
 handleConfirmpassword.emptyStrTimerList = [];
+*/
+
 
 /**
  *"onblur" event handler function
@@ -804,14 +919,7 @@ handleConfirmpassword.emptyStrTimerList = [];
  */
 function handleFullname(e)
 {
-    if(onclickClearCheckText(e, handleFullname.emptyStrTimerList)){return;}
-    var timerId = isEmptyStr(e);
-    if(timerId != false)
-    {
-        clearRepeatedTimerToOne(timerId, handleFullname.emptyStrTimerList);
-        return;
-    }
-    
+    isEmptyStr(e)
     //may need some format verification below
 }
 
@@ -821,16 +929,10 @@ function handleFullname(e)
  */
 function handleUsername(e)
 {
-    if(onclickClearCheckText(e, handleUsername.emptyStrTimerList)){return;}
-    var timerId = isEmptyStr(e);
-    if(timerId != false)
-    {
-        clearRepeatedTimerToOne(timerId, handleUsername.emptyStrTimerList);
-        return;
+    if(!isEmptyStr(e)){
+        //ajax check availability
+        isUsernameAvailable();
     }
-    
-    //ajax check availability
-    isUsernameAvailable();
 }
 
 /**
@@ -839,15 +941,9 @@ function handleUsername(e)
  */
 function handlePhone(e)
 {
-    if(onclickClearCheckText(e, handlePhone.emptyStrTimerList)){return;}
-    var timerId = isEmptyStr(e);
-    if(timerId != false)
-    {
-        clearRepeatedTimerToOne(timerId, handlePhone.emptyStrTimerList);
-        return;
+    if(!isEmptyStr(e) && phoneNumberFormat(e)){
+        isPhoneNumberAvailable();
     }
-    if(phoneNumberFormat(e)){    isPhoneNumberAvailable();    }
-
 }
 
 /**
@@ -856,14 +952,10 @@ function handlePhone(e)
  */
 function handleEmail(e)
 {
-    if(onclickClearCheckText(e, handleEmail.emptyStrTimerList)){return;}
-    var timerId = isEmptyStr(e);
-    if(timerId != false)
-    {
-        clearRepeatedTimerToOne(timerId, handleEmail.emptyStrTimerList);
-        return;
+    if(!isEmptyStr(e) && emailFormat(e)){
+        //ajax check availability
+        isEmailAvailable();
     }
-    if(emailFormat(e)){    isEmailAvailable();    }
 }
 
 /**
@@ -872,23 +964,16 @@ function handleEmail(e)
  */
 function handlePassword(e)
 {
-    if(onclickClearCheckText(e, handlePassword.emptyStrTimerList)){return;}
-    var arr = getElems(e);
-    var formatPassed = false;
     if(e.type == "keyup")
     {
-        formatPassed = passwordFormat(e);
-        return;
+        passwordFormat(e);
     }
-    else if(!formatPassed && e.type == "blur" && arr[1].innerText == "")
+    else if(e.type == "blur")
     {
-        var timerId = isEmptyStr(e);
-        if(timerId != false)
-        {
-            clearRepeatedTimerToOne(timerId, handlePassword.emptyStrTimerList);
-            return;
+        if(!isEmptyStr(e)){
+            passwordIdentity(e);
+            passwordFormat(e);
         }
-        passwordIdentity(e);
     }
 }
 
@@ -898,15 +983,9 @@ function handlePassword(e)
  */
 function handleConfirmpassword(e)
 {
-    if(onclickClearCheckText(e, handleConfirmpassword.emptyStrTimerList)){return;}
-
-    var timerId = isEmptyStr(e);
-    if(timerId != false)
-    {
-        clearRepeatedTimerToOne(timerId, handleConfirmpassword.emptyStrTimerList);
-        return;
+    if(!isEmptyStr(e)){
+        passwordIdentityConfirm(e);
     }
-    passwordIdentityConfirm(e);
 
 }
 
@@ -973,15 +1052,15 @@ function handleInstitutionNamesList(e)
 
 function handleInstitutionOnchange(e)
 {
-    if(e.target.hasClass("errorField")){e.target.removeClass("errorField");}
-    getNextCell(e.target).innerText = "";
+    if($(e.target).hasClass("is-invalid")){e.target.removeClass("is-invalid");}
+    getNextCell(e.target).removeClass("invalid-feedback").innerText = "";
 
 }
 
 function handleSelectionBox(e)
 {
-    if(e.target.hasClass("errorField")){e.target.removeClass("errorField");}
-    getNextCell(e.target).innerText = "";
+    if($(e.target).hasClass("is-invalid")){e.target.removeClass("is-invalid");}
+    getNextCell(e.target).removeClass("invalid-feedback").innerText = "";
 }
 
 function isFormComplete()
@@ -1013,23 +1092,6 @@ function handleMouseSubmit(e)
 function handleFormSubmit(e)
 {
     e.preventDefault();
-    function clearTimers(timerList, checkElem)
-    {
-        clearAllRepeatedTimers(timerList);
-        checkElem.innerText = "";
-    }
-    var timersList = [handleFullname.emptyStrTimerList,
-                        handleUsername.emptyStrTimerList,
-                        handlePhone.emptyStrTimerList,
-                        handleEmail.emptyStrTimerList,
-                        handlePassword.emptyStrTimerList,
-                        handleConfirmpassword.emptyStrTimerList];
-    var checkFieldsList = [document.getElementById("fullnamecheck"), document.getElementById("usernamecheck"), document.getElementById("phonecheck"),
-                            document.getElementById("useremailcheck"), document.getElementById("userpasswordcheck"), document.getElementById("userpasswordconfirmcheck")];
-    for(var i = 0; i < checkEmptyFieldList.length; i++)
-    {
-        clearTimers(timersList[i], checkFieldsList[i]);
-    }
     var pass = true;
     var warningsList = [];
     var elemsList = document.infoform.elements;
@@ -1096,13 +1158,17 @@ function queryStringToJSON(str)
 function showSubmitWarnings(list)
 {
     list.forEach(function(elem){
-        $(elem[0]).addClass("errorField");
-        getNextCell(elem[0]).innerText = elem[1];
+        $(elem[0]).removeClass("is-valid").addClass("is-invalid");
+        if(elem[0].name != "userpassword") {
+            getNextCell(elem[0]).removeClass("valid-feedback").addClass("invalid-feedback").innerText = elem[1];
+        } else {
+            document.getElementById("userpasswordcheck").removeClass("valid-feedback").addClass("invalid-feedback").innerText = elem[1];
+        }
         //mark the confirmpassword field if not matched
         if(elem[1] == "Passwords need to be matched")
         {
-            $(document.getElementById("userpasswordconfirm")).addClass("errorField");
-            getNextCell(document.getElementById("userpasswordconfirm")).innerText = "Passwords need to be matched";    
+            $(document.getElementById("userpasswordconfirm")).removeClass("is-valid").addClass("is-invalid");
+            getNextCell(document.getElementById("userpasswordconfirm")).removeClass("valid-feedback").addClass("invalid-feedback").innerText = "Passwords need to be matched";    
         }
     });
     /*
@@ -1129,12 +1195,11 @@ checkEmptyFieldList.push(handlePassword);
 checkEmptyFieldList.push(handleConfirmpassword);
 
 //selecting the user's input fields in the table
-var inputFields = $$(".textField");
-var i = 0;
-inputFields.forEach(function(elem){
-    elem.addEvent("blur", checkEmptyFieldList[i]);
-    elem.addEvent("click", checkEmptyFieldList[i++]);
-});
+var inputFields = document.getElementsByTagName("input");
+for(var i=0; i < inputFields.length; i++) {
+    inputFields[i].addEvent("blur", checkEmptyFieldList[i]);
+    //inputFields[i].addEvent("click", checkEmptyFieldList[i]);
+}
 
 document.infoform.usertypeselection.onchange = handleSelectionBox;
 //register for the phone number field
@@ -1150,7 +1215,7 @@ var passwordField = document.infoform.userpassword;
 passwordField.addEventListener("keyup", handlePassword);
 
 //register for the password exposure checkbox
-document.getElementById("userpasswordexpose").addEventListener("click", handlePasswordExposure);
+document.getElementById("userpasswordexposespan").addEventListener("click", handlePasswordExposure);
 
 //register for student type user sign-up extension
 var userTypeSelector = document.infoform.usertypeselection;

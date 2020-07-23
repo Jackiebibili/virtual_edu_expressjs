@@ -107,7 +107,7 @@ router.get('/register', (req, res, next) => {
 })
 
 
-router.get('/register', (req, res) => res.render('sign_up_console'))
+router.get('/register', (req, res) => res.render('register'))
 
 
 //POST to server --register the user with the info provided
