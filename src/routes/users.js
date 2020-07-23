@@ -87,6 +87,13 @@ router.get('/register', (req, res, next) => {
                         res.json({usernametext: username, available: true})
                     }   
                 })
+                .catch(err => {
+                    res.json({error_code: "ERR_EMPTY_RESPONSE"})
+                    /*
+                    const errors = ["Please check your Internet connection, error code: ERR_EMPTY_RESPONSE"]
+                    res.render('register', {    errors  })
+                    */
+                })
         } else if(usertypeIndex == "2") {
             //see if the username has registered in instructor database
             let Model = require('../models/register.instructor.model')
@@ -97,6 +104,13 @@ router.get('/register', (req, res, next) => {
                     } else {
                         res.json({usernametext: username, available: true})
                     }
+                })
+                .catch(err => {
+                    res.json({error_code: "ERR_EMPTY_RESPONSE"})
+                    /*
+                    const errors = ["Please check your Internet connection, error code: ERR_EMPTY_RESPONSE"]
+                    res.render('register', {    errors  })
+                    */
                 })
         } else {
             return res.status(400).send('type out of bound')

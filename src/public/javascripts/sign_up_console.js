@@ -653,17 +653,20 @@ function isUsernameAvailable()
                 checkElem.innerText = "Sorry, this username has been registered!";
             }
         },
-        onFailure: function() {
-            //console.log('failed to connect to the server'); 
-            //user type is not selected: warn the user about it
-            $(username).removeClass("is-valid").addClass("is-invalid");
-            $(checkElem).removeClass("valid-feedback").addClass("invalid-feedback");
-            checkElem.innerText = "Sorry, please select a user type!";
-            var select = document.infoform.usertypeselection;
-            var check = document.getElementById("usertypecheck");
-            $(select).removeClass("is-valid").addClass("is-invalid");
-            $(check).removeClass("valid-feedback").addClass("invalid-feedback");
-            check.innerText = "Select an option prior to typing a username.";
+        onFailure: function(resJSON, resText) {
+            if(resJSON.error_code == "ERR_EMPTY_RESPONSE") {
+                document.getElementById("div").insertBefore((new Element("span", {text:"Please check your Internet connection, error code: ERR_EMPTY_RESPONSE"})), document.getElementById("infoform"));
+            } else if(resJSON.status == 400) {
+                //user type is not selected: warn the user about it
+                $(username).removeClass("is-valid").addClass("is-invalid");
+                $(checkElem).removeClass("valid-feedback").addClass("invalid-feedback");
+                checkElem.innerText = "Sorry, please select a user type!";
+                var select = document.infoform.usertypeselection;
+                var check = document.getElementById("usertypecheck");
+                $(select).removeClass("is-valid").addClass("is-invalid");
+                $(check).removeClass("valid-feedback").addClass("invalid-feedback");
+                check.innerText = "Select an option prior to typing a username.";
+            }
         }
     });
     request.get();
@@ -1222,5 +1225,5 @@ var userTypeSelector = document.infoform.usertypeselection;
 userTypeSelector.addEventListener("change", handleUserType);
 
 document.getElementById("infoform").addEventListener("submit", handleFormSubmit);
-document.getElementById("submitbutton").addEventListener("mouseover", handleMouseSubmit);
-document.getElementById("submitbutton").addEventListener("mouseout", handleMouseSubmit);
+//document.getElementById("submitbutton").addEventListener("mouseover", handleMouseSubmit);
+//document.getElementById("submitbutton").addEventListener("mouseout", handleMouseSubmit);
