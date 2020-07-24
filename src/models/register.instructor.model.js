@@ -51,6 +51,18 @@ let CustomerSchema = new mongoose.Schema({
     userpassword: {
         type: String,
         required: true
+    },
+    creationDate: {
+        type: String,
+        default: Date.now
+    },
+    lastLoginDate: {
+        type: String,
+        default: ""
+    },
+    currentLoginDate: {
+        type: String,
+        default: ""
     }
 })
 

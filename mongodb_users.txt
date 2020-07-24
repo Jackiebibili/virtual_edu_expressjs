@@ -1,11 +1,17 @@
 Username: jackiebibili
 ip whitelisted*
 Pw: ejXz0PINCGNwZ3Ng
-database connection primary url: cluster0-shard-00-01.1jl6d.mongodb.net
-mongoose connect url: mongodb+srv://jackiebibili:ejXz0PINCGNwZ3Ng@cluster0.1jl6d.mongodb.net/web-node?retryWrites=true&w=majority
+database connection primary uri: cluster0-shard-00-01.1jl6d.mongodb.net
+mongoose client uri: mongodb+srv://jackiebibili:ejXz0PINCGNwZ3Ng@cluster0.1jl6d.mongodb.net/web-node?retryWrites=true&w=majority
 
 Username: Stephen
-ip not whitelisted*
+ip not whitelisted* (don't know about it)
 Pw: CwGRLbmHQpEFiZdb
-database connection primary url: cluster0-shard-00-01.1jl6d.mongodb.net
-mongoose connect url: mongodb+srv://Stephen:CwGRLbmHQpEFiZdb@cluster0.1jl6d.mongodb.net/web-node?retryWrites=true&w=majority
+database connection primary uri: cluster0-shard-00-01.1jl6d.mongodb.net
+mongoose client uri: mongodb+srv://Stephen:CwGRLbmHQpEFiZdb@cluster0.1jl6d.mongodb.net/web-node?retryWrites=true&w=majority
+
+======NEW SERVER IN HONG KONG======
+Username: jackiebibili
+Pw: hmN41ImViQqarn6W
+database connection primary uri: test0-shard-00-01.ydnqv.azure.mongodb.net
+mongoose client uri: mongodb+srv://jackiebibili:hmN41ImViQqarn6W@test0.ydnqv.azure.mongodb.net/users?retryWrites=true&w=majority

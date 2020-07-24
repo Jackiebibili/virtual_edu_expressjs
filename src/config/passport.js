@@ -5,6 +5,9 @@ const bcrypt = require('bcryptjs')
 //Load user model
 const instructorModel = require('../models/register.instructor.model')
 const studentModel = require('../models/register.student.model')
+var objectId = require('mongodb').ObjectID
+//const mongoose = require('mongoose')
+//mongoose.connect('mongodb://localhost:27017')
 
 function SessionConstructor(userId, userGroup, details)
 {
@@ -39,15 +42,11 @@ module.exports = function(passport) {
                 done(err, user)
             })
         }
-        /*
-        User.findById(id, (err, user) => {
-          done(err, user);
-        });      */
       });
 
 
     passport.use(
-        'instructor-signup', new LocalStrategy({ usernameField: 'email'}, function(email, password, done){
+        'instructor-login', new LocalStrategy({ usernameField: 'email'}, function(email, password, done){
             //match user
             instructorModel.findOne({ useremail: email })
                 .then(user => {
@@ -60,6 +59,13 @@ module.exports = function(passport) {
                         if(err) throw err;
 
                         if(isMatch) {
+                            console.log(user.id)
+                            //update the last login time
+                            var date = Date.now()
+                            instructorModel.updateOne({"_id": objectId(user.id)}, {$set: {"currentLoginDate": date}}, (err, result) => {
+                                if(err) throw err;
+                                console.log(result)
+                            })
                             return done(null, user)
                         } else {
                             return done(null, false, { message: 'Password incorrect'})
@@ -70,7 +76,7 @@ module.exports = function(passport) {
         })
     )
     passport.use(
-        'student-signup', new LocalStrategy({ usernameField: 'email'}, function(email, password, done){
+        'student-login', new LocalStrategy({ usernameField: 'email'}, function(email, password, done){
             //match user
             studentModel.findOne({ useremail: email })
                 .then(user => {
@@ -83,6 +89,12 @@ module.exports = function(passport) {
                         if(err) throw err;
 
                         if(isMatch) {
+                            //update the last login time
+                            var date = Date.now()
+                            studentModel.updateOne({"_id": objectId(user.id)}, {$set: {"currentLoginDate": date}}, (err, result) => {
+                                if(err) throw err;
+                                console.log(result)
+                            })
                             return done(null, user)
                         } else {
                             return done(null, false, { message: 'Password incorrect'})

@@ -168,7 +168,7 @@ router.post('/register', (req, res) => {
                 if(user) {
                     //the requested user has existed
                     errors.push({ msg: 'Email is already registered'})
-                    res.render('sign_up_console', {
+                    res.render('register', {
                         errors,
                         fullnametext,
                         regioncode,
@@ -228,7 +228,7 @@ router.post('/register', (req, res) => {
                 if(user) {
                     //the requested user has existed
                     errors.push({ msg: 'Email is already registered'})
-                    res.render('sign_up_console', {
+                    res.render('register', {
                         errors,
                         fullnametext,
                         regioncode,

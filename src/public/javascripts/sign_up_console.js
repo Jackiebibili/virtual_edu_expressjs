@@ -13,12 +13,12 @@ var formCheckList = [
     },
     {
         name:"phonetext",
-        method:[phoneNumberCheck, canSubmitPhoneNumber],
+        method:[phoneNumberCheck, submitPhoneNumber],
         prompt:["Enter a valid phone #", "This number has been registered"]
     },
     {
         name:"useremail",
-        method:[emailCheck, canSubmitEmail],
+        method:[emailCheck, submitEmail],
         prompt:["Enter a valid email address", "This email has been registered"]
     },
     {
@@ -28,7 +28,7 @@ var formCheckList = [
     },
     {
         name:"usernametext",
-        method:[isNonEmptyField, canSubmitUsername],
+        method:[isNonEmptyField, submitUsername],
         prompt:["Enter a valid user name", "This username has been registered"]
     },
     {
@@ -454,6 +454,7 @@ function phoneNumberFormat(e)
     }
 }
 
+/*
 async function canSubmitPhoneNumber()
 {
     try{
@@ -464,24 +465,26 @@ async function canSubmitPhoneNumber()
         return null;
     }
 }
+*/
 
 function submitPhoneNumber()
 {
-    return new Promise((resolve, reject) => {
-        var text = document.infoform.phonetext.value;
-        var request = new Request.JSON({
-            url: "register" + "?phonetext=" + text,
-            onSuccess: function(resJSON) {
-                if(resJSON.available == true) {
-                    resolve(true);
-                } else {
-                    resolve(false);
-                }
-            },
-            onFailure: reject
-        });
-        request.get();
+    var pass = false;
+    var text = document.infoform.phonetext.value;
+    var request = new Request.JSON({
+        url: "register" + "?phonetext=" + text,
+        async: false,
+        onSuccess: function(resJSON) {
+            if(resJSON.available == true) {
+                pass = true;
+            } else {
+                pass = false;
+            }
+        },
+        onFailure: function(){  pass = false;   }
     });
+    request.get();
+    return pass;
 }
 
 function isPhoneNumberAvailable()
@@ -507,35 +510,40 @@ function isPhoneNumberAvailable()
 }
 
 
-
+/*
 async function canSubmitEmail()
 {
     try{
         //await for submitEmail to resolve or reject
         //would throw error before returning
-        return await submitEmail();
+        var promise = await submitEmail();
+        console.log(promise);
+        return true;
+        //return promise;
     } catch(e) {
-        return null;
+        return false;
     }
 }
+*/
 
 function submitEmail()
 {
-    return new Promise((resolve, reject) => {
-        var useremail = document.infoform.useremail.value;
-        var request = new Request.JSON( {
-            url: "register" + "?useremail=" + useremail,
-            onSuccess: function(resJSON) {
-                if(resJSON.available == true) {
-                    resolve(true);
-                } else {
-                    resolve(false);
-                }
-            },
-            onFailure: reject
-        });
-        request.get();
+    var pass = false;
+    var useremail = document.infoform.useremail.value;
+    var request = new Request.JSON( {
+        url: "register" + "?useremail=" + useremail,
+        async: false,
+        onSuccess: function(resJSON) {
+            if(resJSON.available == true) {
+                pass = true;
+            } else {
+                pass = false;
+            }
+        },
+        onFailure: function(){  pass = false;   }
     });
+    request.get();
+    return pass;
 }
 
 function isEmailAvailable()
@@ -592,7 +600,7 @@ function emailFormat(e)
 }
 
 
-
+/*
 async function canSubmitUsername()
 {
     try{
@@ -603,30 +611,32 @@ async function canSubmitUsername()
         return null;
     }
 }
+*/
 
 function submitUsername()
 {
-    return new Promise((resolve, reject) => {
-        var username = document.infoform.usernametext.value;
-        var usertypeIndex = document.infoform.usertypeselection.selectedIndex;
-        if(userTypeSelector == 0) {
-            //user did not select a usertype
-            reject();
-        } else {
-            var request = new Request.JSON({
-                url: "register" + "?usernametext=" + username + "&usertypeindex=" + usertypeIndex,
-                onSuccess: function(resJSON) {
-                    if(resJSON.available == true) {
-                        resolve(true);
-                    } else {
-                        resolve(false);
-                    }
-                },
-                onFailure: reject
-            });
-            request.get();    
-        }
-    });
+    var pass = false;
+    var username = document.infoform.usernametext.value;
+    var usertypeIndex = document.infoform.usertypeselection.selectedIndex;
+    if(userTypeSelector == 0) {
+        //user did not select a usertype
+        reject();
+    } else {
+        var request = new Request.JSON({
+            url: "register" + "?usernametext=" + username + "&usertypeindex=" + usertypeIndex,
+            async: false,
+            onSuccess: function(resJSON) {
+                if(resJSON.available == true) {
+                    pass = true;
+                } else {
+                    pass = true;
+                }
+            },
+            onFailure: function(){  pass = false;   }
+        });
+        request.get();    
+    }
+    return pass;
 }
 
 function isUsernameAvailable()
