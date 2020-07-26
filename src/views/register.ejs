@@ -5,7 +5,7 @@
           <i class="fas fa-user-plus"></i> Register
         </h1>
         <%- include('partials/messages'); %> 
-        <form id="infoform" name="infoform" action="/users/register" method="POST">
+        <form id="infoform" name="infoform" action="/users/register-" method="POST" enctype="multipart/form-data">
             <div id="fullname_row" class="form-group">
                 <label class="col-form-label" id="fullname_label">Full name</label>
                 <input type="text"

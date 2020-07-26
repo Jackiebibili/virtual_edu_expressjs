@@ -52,6 +52,15 @@ let CustomerSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    certificates_upload: {
+        type: Array,
+        required: true
+    },
+    account_status: {
+        type: String,
+        required: true,
+        default: "Reviewing"
+    },
     creationDate: {
         type: String,
         default: Date.now

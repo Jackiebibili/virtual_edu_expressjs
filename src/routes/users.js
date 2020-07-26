@@ -1,11 +1,65 @@
 let express = require('express')
+let path = require('path')
 let router = express.Router()
+let mongoose = require('mongoose')
 const bcrypt = require('bcryptjs')
+let crypto = require('crypto')
 let bodyParser = require('body-parser')
-const e = require('express')
 let urlencodedParser = bodyParser.urlencoded({extended : false})
+let mongodb = require('mongodb')
+const ObjetId = require('mongodb').ObjectID
+let GridFsStorage = require('multer-gridfs-storage')
+let Grid = require('gridfs-stream')
+let multer = require('multer')
+let uri = require('../config/keys.usaws').MongoURI
+
 
 router.get('/login', (req, res) => res.render('login'))
+/*
+//create storage engine
+const conn = mongoose.createConnection(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true
+})
+let gfs;
+conn.once('open', () => {
+    //init stream
+    gfs = Grid(conn.db, mongoose.mongo);
+    gfs.collection('instructor-certificate')
+})
+
+
+const filesFilter = (req, file, cb) => {
+    if(file.mimetype === 'image/*' || file.mimetype === "application/pdf") {
+        cb(null, true)
+    } else {
+        cb(null, false)
+    }
+}
+*/
+
+const storage = new GridFsStorage({
+    url: uri,
+    file: (req, file) => {
+      return new Promise((resolve, reject) => {
+        crypto.randomBytes(16, (err, buf) => {
+          if (err) {
+            return reject(err);
+          }
+          const filename = buf.toString('hex') + path.extname(file.originalname);
+          const fileInfo = {
+            filename: filename,
+            bucketName: 'instructor-certificate'
+          };
+          resolve(fileInfo);
+        });
+      });
+    }
+  });
+  const upload = multer({ storage });
+
+
 
 
 //POST to server --ajax test to see user availability
@@ -123,10 +177,15 @@ router.get('/register', (req, res, next) => {
 
 router.get('/register', (req, res) => res.render('register'))
 
-
+/*
 //POST to server --register the user with the info provided
 let CustomerModel = null;
-router.post('/register', (req, res) => {
+router.post('/register', upload.fields([{name: 'file0', maxCount: 1},
+                                        {name: 'file1', maxCount: 1},
+                                        {name: 'file2', maxCount: 1},
+                                        {name: 'file3', maxCount: 1}]),
+            (req, res) => {
+    
     let errors = []
     //choose the correct model to connect
     if(req.body.usertypeselection == "student")
@@ -244,6 +303,24 @@ router.post('/register', (req, res) => {
                         userpassword
                     })
                 } else {
+                    var fileIds = []
+                    var fileObj = req.files.file0;
+                    if(typeof fileObj != 'undefined') {
+                        fileIds.push(fileObj[0].id)
+                    }
+                    fileObj = req.files.file1;
+                    if(typeof fileObj != 'undefined') {
+                        fileIds.push(fileObj[0].id)
+                    }
+                    fileObj = req.files.file2;
+                    if(typeof fileObj != 'undefined') {
+                        fileIds.push(fileObj[0].id)
+                    }
+                    fileObj = req.files.file3;
+                    if(typeof fileObj != 'undefined') {
+                        fileIds.push(fileObj[0].id)
+                    }
+                    //res.json(req.files)
                     const newUser = new CustomerModel(req.body)
                     //hash password and replace the one in newUser with hash encoded
                     bcrypt.genSalt(10, (err, salt) =>
@@ -251,6 +328,7 @@ router.post('/register', (req, res) => {
                     if(err) throw err
                     //set the hashed password to newUser
                     newUser.userpassword = hash
+                    newUser.certificate_id = fileIds
                     //save the newUser
                     newUser.save()
                      .then(user => {
@@ -264,5 +342,5 @@ router.post('/register', (req, res) => {
         })
     }
 })
-
+*/
 module.exports = router

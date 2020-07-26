@@ -59,6 +59,10 @@ module.exports = function(passport) {
                         if(err) throw err;
 
                         if(isMatch) {
+                            if(user.account_status == "Reviewing" || user.account_status == "reviewing")
+                            {
+                                return done(null, false, { message: "At this time, we're diligently reviewing your application to be an instructor in our website. Upon account approval, we will send an confirmation email to the email you provided, and you can activate your account from there."})
+                            }
                             console.log(user.id)
                             //update the last login time
                             var date = Date.now()

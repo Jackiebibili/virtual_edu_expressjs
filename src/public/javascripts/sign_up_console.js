@@ -27,6 +27,11 @@ var formCheckList = [
         prompt:["Select a valid type"]
     },
     {
+        name:"file0",
+        method:[isCertificateSelected],
+        prompt:["Upload your certificate of one of the type above"]
+    },
+    {
         name:"usernametext",
         method:[isNonEmptyField, submitUsername],
         prompt:["Enter a valid user name", "This username has been registered"]
@@ -164,7 +169,7 @@ function addStudentTypeElements()
 function addInstructorTypeSelector()
 {
     //dynamically add instructor user type elements
-    var typeOfInstructorStr = ["select an option", "individual educator", "inistutional/organizational educator"];
+    var typeOfInstructorStr = ["select an option", "individual educator", "institutional/organizational educator"];
     var parentTable = document.getElementById("infoform");
     var posLowerBound = document.getElementById('username_row');
     var typeOfInstructorSelectAttr = {
@@ -206,7 +211,8 @@ function addIndividualTypeElements()
 
     parentTable.insertBefore(degree_row, posLowerBound);
     degreeSelect.addEventListener("change", handleSelectionBox);
-    return degree_row;
+    var certificate_row = addInstructorCertificate();
+    return [degree_row, certificate_row]
 }
 
 
@@ -323,9 +329,112 @@ function addOrganzationalTypeElements()
     roleSelect.addEventListener("change", handleSelectionBox);
     institutionTypeSelect.addEventListener("change", handleSelectionBox);
     institutionName.addEventListener("change", handleInstitutionOnchange);
-    return [institutionList_row, institutionType_row, role_row];
+    var certificate_row = addInstructorCertificate();
+    return [institutionList_row, institutionType_row, role_row, certificate_row];
 }
 
+addInstructorCertificate.panelsList = [];
+function addInstructorCertificate()
+{
+    var parentTable = document.getElementById("infoform");
+    var posLowerBound = document.getElementById('username_row');
+    var certificateTypesList = ["In Teaching", "With Academic Degree", "With Skills", "Customize"];
+    var certificatePromptsList = ["Please upload a combined file(img/pdf) of your certification to teach as a credible instructor.",
+                                  "Please upload a combined file(img/pdf) of your diploma of higher education as a credible instructor.",
+                                  "Please upload a combined file(img/pdf) of your skill certificate as a credible instructor.",
+                                  ];
+    var customizePrompt = "Please upload a combined file(img/pdf) of any of your certificates in order to be a credible instructor."
+    var tabs_row = new Element("div", {class:"form-group", id:"certificate_row"});
+    var panels_row = new Element("div", {id:"tabcontent", class:"form-group"});
+    var tabs_list = new Element("ul", {class:"nav nav-tabs"});
+    var i = 0;
+
+    //makeup the nav tabs
+    certificateTypesList.forEach(type => {
+        var item = new Element("li", {class:"nav-item liPointer"});
+        item.adopt(new Element("a", {class:"nav-link", text: type, id:"href" + i++}));
+        tabs_list.adopt(item);
+    });
+    i = 0;
+
+    //makeup the panels
+    certificatePromptsList.forEach(prompt => {
+        var div = new Element("div", {class:"d-flex justify-content-around", style: "display: none !important;"});
+        var input = new Element("input", {id:"file" + i, name:"file" + i, type:"file", accept:"", style:"display: none;"});
+        var label = new Element("label", {for:"file" + i++}).adopt(new Element("i", {text:"Upload"}).adopt(new Element("img", {src:"/static/images/uploadFileBnt.svg", width:"60", height:"60"})));
+        div.adopt(new Element("div", {class:"mt-3 ml-4"}).adopt([input, label]));
+        div.adopt(new Element("div", {class:"mt-5 ml-4 mr-4"}).adopt(new Element("p", {text: prompt})));
+        addInstructorCertificate.panelsList.push(div);
+    });
+    //makeup the customized panel
+    var div = new Element("div", {class:"col", style: "display: none !important;"});
+    var input = new Element("input", {id:"file" + i, name:"file" + i, type:"file", accept:"", style:"display: none;"});
+    var label = new Element("label", {for:"file" + i, class:"input-group-text"}).adopt(new Element("img", {src:"/static/images/uploadFileBnt.svg", width:"18", height:"18"}));
+    var textField = new Element("input", {type: "text", id:"customizedcertificatetype", name:"customizedcertificatetype", form:"infoform", size:"45", maxlength:"50", placeholder:"Type your certificate type here", class:""});
+    div.adopt(new Element("div", {class:"mt-4 ml-4 mr-4"}).adopt(new Element("p", {text: customizePrompt})));
+    div.adopt(new Element("div", {class:"input-group ml-4 mr-4"}).adopt([textField, new Element("div", {class:"input-group-append"}).adopt(new Element(label).adopt(input))]));
+    div.adopt(new Element("div", {class:"ml-4 mr-4", id:"customizedfileuploadcheck"}));
+    addInstructorCertificate.panelsList.push(div);
+
+    //set the default active tab/panel
+    tabs_row.adopt(new Element("label", {class:"col-form-label", text:"You are required to be certified in at least one item below:"}));
+    addInstructorCertificate.panelsList.forEach(elem => {
+        panels_row.adopt(elem);
+    })
+    tabs_row.adopt(tabs_list)
+    tabs_row.adopt(panels_row);
+    //append the user uploaded file info
+    tabs_row.adopt(new Element("div", {id:"filename0", class:"ml-4", style:"display: none !important;"}));
+    tabs_row.adopt(new Element("div", {id:"filename1", class:"ml-4", style:"display: none !important;"}));
+    tabs_row.adopt(new Element("div", {id:"filename2", class:"ml-4", style:"display: none !important;"}));
+    tabs_row.adopt(new Element("div", {id:"filename3", class:"ml-4", style:"display: none !important;"}));
+
+    tabs_row.adopt(new Element("div", {id:"certificateselectcheck", class:""}));
+    parentTable.insertBefore(tabs_row, posLowerBound);
+    $(document.getElementById("href0")).addClass("active");
+    $$(".liPointer").forEach(elem => {
+        elem.addEvent("click", tabIsActive);
+    });
+
+    //register upload file onchange
+    for(var i=0; i<4; i++)
+    {
+        document.getElementById('file' + i).addEventListener("change", handleAddFile);
+    }
+    document.getElementById("file3").addEventListener("click", handleCustomizedFile);
+    addInstructorCertificate.panelsList[0].setProperty("style", "");
+    return tabs_row;
+}
+
+
+function tabIsActive(e) {
+    //active the clicked nav tab
+    $$(".nav-link").forEach(elem => {
+        if(elem.hasClass("active")) {
+            elem.removeClass("active");
+        }
+    });
+    e.target.addClass("active");
+    //active the corresponding tab panel
+    addInstructorCertificate.panelsList.forEach(elem => {
+        if(elem.style != "display: none !important;") {
+            elem.setProperty("style", "display: none !important;");
+        }
+    })
+    addInstructorCertificate.panelsList[Number(e.target.id.slice(4))].setProperty("style", "");
+}
+
+//on click
+function handleCustomizedFile(e) {
+    var textField = document.getElementById("customizedcertificatetype");
+    //if the type of certificate is not entered
+    if(textField.value == "") {
+        e.preventDefault();
+        var checkpoint = document.getElementById("customizedfileuploadcheck");
+        checkpoint.innerText = "Please enter the title of your certificate in order to browse";
+        checkpoint.addClass("invalidFeedback");
+    }
+}
 
 
 /**
@@ -1002,6 +1111,47 @@ function handleConfirmpassword(e)
 
 }
 
+//onchange
+function handleAddFile(e)
+{
+    var certificates = ["Teaching Certificate", "Academic Degree", "Skill Certificate", "Other Certificate"];
+    //the # of nav tab was selected
+    var tabSelected = e.target.id.slice(4);
+    var certificateName = certificates[tabSelected];
+    var filename = e.target.value;
+    filename = filename.slice(filename.lastIndexOf('\\') + 1);
+    if(filename) {
+        //remove the previous selected file
+        document.getElementById('filename' + tabSelected).empty();
+        //show the div with corr to the #
+        if(tabSelected == 3) {
+            var customizedType = document.getElementById("customizedcertificatetype");
+            certificateName = customizedType.value;
+            e.target.name = certificateName;
+            customizedType.value = "";
+        }
+        var removeBnt = new Element("a", {id:"remove" + tabSelected, text: "remove", href:"#", draggable: "false"});
+        document.getElementById('filename' + tabSelected).adopt(new Element("div", {class: "row"}).adopt([new Element("div", {class:"col-md-auto"}).adopt(removeBnt), new Element("div", {class:"col"}).adopt(new Element("p", {text: filename + "  --" + certificateName}))]));
+        document.getElementById('filename' + tabSelected).setProperty("style", "");
+        removeBnt.addEventListener("mouseup", handleDeleteFile);
+    } else {
+        document.getElementById('filename' + tabSelected).setProperty("style", "display: none !important;");
+        document.getElementById('file' + tabSelected).value = "";
+        document.getElementById('filename' + tabSelected).empty();
+    }
+}
+
+//onmouseup
+function handleDeleteFile(e)
+{
+    e.preventDefault();
+    var tabSelected = e.target.id.slice(6);
+    document.getElementById('filename' + tabSelected).setProperty("style", "display: none !important;");
+    document.getElementById('file' + tabSelected).value = "";
+    document.getElementById('filename' + tabSelected).empty();
+}
+
+
 function deleteElements(elemsList)
 {
     if(elemsList.length != 0)
@@ -1043,7 +1193,9 @@ function handleInstructorType(e)
     deleteElements(handleInstructorType.elementList);
     if(e.target.selectedIndex == 1)
     {
-        handleInstructorType.elementList.push(addIndividualTypeElements());
+        addIndividualTypeElements().forEach(function(elem){
+            handleInstructorType.elementList.push(elem);
+        })
     }
     else if(e.target.selectedIndex == 2)
     {
@@ -1074,6 +1226,18 @@ function handleSelectionBox(e)
 {
     if($(e.target).hasClass("is-invalid")){e.target.removeClass("is-invalid");}
     getNextCell(e.target).removeClass("invalid-feedback").innerText = "";
+}
+
+function isCertificateSelected()
+{
+    var pass = false;
+    var filenames = ['file0', 'file1', 'file2', 'file3'];
+    filenames.forEach(name => {
+        if(document.getElementById(name).value != "") {
+            pass = true;
+        }
+    });
+    return pass;
 }
 
 function isFormComplete()
@@ -1138,7 +1302,24 @@ function handleFormSubmit(e)
     if(!pass){    e.preventDefault();    }
     else{
         //console.log(e.target.toQueryString());
-        document.getElementById('infoform').submit();
+        //make a field for selected customized file (id: file3)
+        var customizedFile = document.getElementById("file3");
+        if(customizedFile.name != "file3") {
+            var customizedcertificateType = customizedFile.name;
+            document.getElementById("customizedcertificatetype").value = customizedcertificateType;
+            customizedFile.name = "file3";
+        } else {
+            //the customized certificate is not selected, remove the input text field out of the form
+            document.getElementById("customizedcertificatetype").form = "";
+        }
+        //register user type and submit method
+        var form = document.getElementById('infoform');
+        var usertypes = ["", "student", "instructor"];
+        var enctype = ["", "", "multipart/form-data"];
+        var index = document.infoform.usertypeselection.selectedIndex;
+        form.action += usertypes[index];
+        form.enctype = enctype[index];
+        form.submit();
         /*
         var postObj = queryStringToJSON(e.target.toQueryString());
         var request = new Request({
@@ -1171,17 +1352,24 @@ function queryStringToJSON(str)
 function showSubmitWarnings(list)
 {
     list.forEach(function(elem){
-        $(elem[0]).removeClass("is-valid").addClass("is-invalid");
-        if(elem[0].name != "userpassword") {
-            getNextCell(elem[0]).removeClass("valid-feedback").addClass("invalid-feedback").innerText = elem[1];
-        } else {
-            document.getElementById("userpasswordcheck").removeClass("valid-feedback").addClass("invalid-feedback").innerText = elem[1];
-        }
-        //mark the confirmpassword field if not matched
-        if(elem[1] == "Passwords need to be matched")
+        if(elem[0].name != "file0")
         {
-            $(document.getElementById("userpasswordconfirm")).removeClass("is-valid").addClass("is-invalid");
-            getNextCell(document.getElementById("userpasswordconfirm")).removeClass("valid-feedback").addClass("invalid-feedback").innerText = "Passwords need to be matched";    
+            $(elem[0]).removeClass("is-valid").addClass("is-invalid");
+            if(elem[0].name != "userpassword") {
+                getNextCell(elem[0]).removeClass("valid-feedback").addClass("invalid-feedback").innerText = elem[1];
+            } else {
+                document.getElementById("userpasswordcheck").removeClass("valid-feedback").addClass("invalid-feedback").innerText = elem[1];
+            }
+            //mark the confirmpassword field if not matched
+            if(elem[1] == "Passwords need to be matched")
+            {
+                $(document.getElementById("userpasswordconfirm")).removeClass("is-valid").addClass("is-invalid");
+                getNextCell(document.getElementById("userpasswordconfirm")).removeClass("valid-feedback").addClass("invalid-feedback").innerText = "Passwords need to be matched";    
+            }    
+        }
+        else
+        {
+            document.getElementById('certificateselectcheck').removeClass('validFeedback').addClass('invalidFeedback').innerText = elem[1];
         }
     });
     /*

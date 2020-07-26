@@ -2,17 +2,22 @@ let express = require('express')
 expressLayouts = require('express-ejs-layouts')
 let app = express()
 let path = require('path')
+let mongodb = require('mongodb')
 mongoose = require('mongoose')
 let flash = require('connect-flash')
 let session = require('express-session')
 let passport = require('passport')
+let methodOverride = require('method-override')
+let multer = require('multer')
 
 //passport config
 require('./config/passport')(passport)
 
 //DB config
-let db = require('./config/keys').MongoURI
-mongoose.connect(db, {
+let uri = require('./config/keys.usaws').MongoURI
+
+
+mongoose.connect(uri, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true
@@ -20,9 +25,11 @@ mongoose.connect(db, {
     .then(() => console.log('===MongoDB connected==='))
     .catch(err => console.log(err))
 
+
 //bodyparser
 let bodyParser = require('body-parser')
 app.use(bodyParser.urlencoded({extended: false}))
+
 
 //express session middleware
 app.use(session({
@@ -58,9 +65,11 @@ app.use('/users', require('./routes/users'))
 app.use('/student', require('./routes/student'))
 app.use('/instructor', require('./routes/instructor'))
 app.use('/users/login', require('./routes/login'))
-
+app.use('/users/register-instructor', require('./routes/register-instructor'))
+app.use('/users/register-student', require('./routes/register-student'))
 //create a body(parsed json body property) with incoming call
 app.use(bodyParser.json())
+app.use(methodOverride('_method'))
 
 app.use('/static', express.static(path.join(__dirname, 'public')));
 
