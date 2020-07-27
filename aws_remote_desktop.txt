@@ -1,0 +1,2 @@
+desktop admin login pw: aAbMVTN7cdAUoZ33Q??4tGf8YA8.HWUU
+			nginx: push rtmp://<server url>/<stream key>;

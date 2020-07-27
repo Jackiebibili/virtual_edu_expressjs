@@ -761,10 +761,10 @@ function usernameFormat(e)
     //for jck characters: CJK Unified Ideographs and CJK Unified Ideographs Extension A
     var regexContent = /[^0-9A-Z_a-z\u4E00-\u9FFF\u3400-\u4DBF]+/g;
     var regexLength = /^.{16,}$/g;
-    var regExpList = [regexSpaces, regexLength, regexContent];
-    var requireFormat = ["No leading, trailing, or in-between space<br/>",
-                        "No longer than 15 characters",
-                        "Only accept alphanumeric characters, with exceptions of underscores and Chinese characters"];
+    var regExpList = [regexLength, regexSpaces, regexContent];
+    var requireFormat = ["No longer than 15 characters<br/>",
+                         "No leading, trailing, or in-between space<br/>",
+                         "Only accept alphanumeric characters, with exceptions of underscores and Chinese characters"];
     var elem = document.infoform.usernametext;
     var elemcheck = document.getElementById("usernamecheck");
     var elemStr = elem.value;
@@ -815,7 +815,7 @@ function submitUsername()
                 if(resJSON.available == true) {
                     pass = true;
                 } else {
-                    pass = true;
+                    pass = false;
                 }
             },
             onFailure: function(){  pass = false;   }
@@ -873,7 +873,7 @@ function isUsernameAvailable()
 function passwordCheck(a)
 {
     //var val = document.infoform.userpassword;
-    var regLength     = /^.{8,16}$/g;
+    var regLength     = /^.{8,}$/g; //length >= 8
     var regUppercase  = /[A-Z]+/g;
     var regLowercase  = /[a-z]+/g;
     var regNumber     = /\d+/g;
@@ -891,19 +891,18 @@ passwordFormat.insertStr = "";
 function passwordFormat(e)
 {
     passwordFormat.insertStr = "";
-    var regLength     = /^.{8,16}$/g;
+    var regLength     = /^.{8,}$/g; //length >= 8
     var regUppercase  = /[A-Z]+/g;
     var regLowercase  = /[a-z]+/g;
     var regNumber     = /\d+/g;
     var regSpecial    = /([\x20-\x2F]+|[\x3A-\x40]+|[\x5B-\x60]+|[\x7B-\x7E]+)+/g;
     var regExpList    = [regLength, regUppercase, regLowercase,
                         regNumber, regSpecial];
-    var requireFormat = ["8 ~ 16 characters<br/>",
-                        "At least one UPPERCASE<br/>",
-                        "At least one LOWERCASE<br/>",
-                        "At least one number<br/>",
-                        "At least one special char"
-                        ];
+    var requireFormat = ["At least 8 characters long<br/>",
+                         "At least one UPPERCASE<br/>",
+                         "At least one LOWERCASE<br/>",
+                         "At least one number<br/>",
+                         "At least one special char"];
 
     var elem = document.infoform.userpassword;
     var elemcheck = document.getElementById("userpasswordcheck");
