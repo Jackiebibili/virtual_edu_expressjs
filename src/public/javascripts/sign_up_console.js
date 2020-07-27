@@ -3,8 +3,8 @@
 var formCheckList = [
     {
         name:"fullnametext",
-        method:[isNonEmptyField],
-        prompt:["Enter your full name"]
+        method:[isNonEmptyField, fullnameFormatCheck],
+        prompt:["Enter your full name", "Full name cannot be longer than 50 characters"]
     },
     {
         name:"regioncode",
@@ -33,8 +33,8 @@ var formCheckList = [
     },
     {
         name:"usernametext",
-        method:[isNonEmptyField, submitUsername],
-        prompt:["Enter a valid user name", "This username has been registered"]
+        method:[isNonEmptyField, usernameFormatCheck, submitUsername],
+        prompt:["Enter a valid username", "Enter a valid username", "This username has been registered"]
     },
     {
         name:"userpassword",
@@ -211,8 +211,7 @@ function addIndividualTypeElements()
 
     parentTable.insertBefore(degree_row, posLowerBound);
     degreeSelect.addEventListener("change", handleSelectionBox);
-    var certificate_row = addInstructorCertificate();
-    return [degree_row, certificate_row]
+    return [degree_row]
 }
 
 
@@ -329,13 +328,14 @@ function addOrganzationalTypeElements()
     roleSelect.addEventListener("change", handleSelectionBox);
     institutionTypeSelect.addEventListener("change", handleSelectionBox);
     institutionName.addEventListener("change", handleInstitutionOnchange);
-    var certificate_row = addInstructorCertificate();
-    return [institutionList_row, institutionType_row, role_row, certificate_row];
+    return [institutionList_row, institutionType_row, role_row];
 }
 
 addInstructorCertificate.panelsList = [];
 function addInstructorCertificate()
 {
+    //clear the panelsList for initialization
+    addInstructorCertificate.panelsList = [];
     var parentTable = document.getElementById("infoform");
     var posLowerBound = document.getElementById('username_row');
     var certificateTypesList = ["In Teaching", "With Academic Degree", "With Skills", "Customize"];
@@ -352,7 +352,7 @@ function addInstructorCertificate()
     //makeup the nav tabs
     certificateTypesList.forEach(type => {
         var item = new Element("li", {class:"nav-item liPointer"});
-        item.adopt(new Element("a", {class:"nav-link", text: type, id:"href" + i++}));
+        item.adopt(new Element("a", {class:"nav-link noselect", text: type, id:"href" + i++}));
         tabs_list.adopt(item);
     });
     i = 0;
@@ -360,16 +360,16 @@ function addInstructorCertificate()
     //makeup the panels
     certificatePromptsList.forEach(prompt => {
         var div = new Element("div", {class:"d-flex justify-content-around", style: "display: none !important;"});
-        var input = new Element("input", {id:"file" + i, name:"file" + i, type:"file", accept:"", style:"display: none;"});
-        var label = new Element("label", {for:"file" + i++}).adopt(new Element("i", {text:"Upload"}).adopt(new Element("img", {src:"/static/images/uploadFileBnt.svg", width:"60", height:"60"})));
+        var input = new Element("input", {id:"file" + i, name:"file" + i, type:"file", accept:"image/*, application/pdf", style:"display: none;"});
+        var label = new Element("label", {for:"file" + i++, style:"cursor: pointer"}).adopt(new Element("i", {text:"Upload", class:"noselect"}).adopt(new Element("img", {src:"/static/images/uploadFileBnt.svg", width:"60", height:"60", draggable:"false"})));
         div.adopt(new Element("div", {class:"mt-3 ml-4"}).adopt([input, label]));
         div.adopt(new Element("div", {class:"mt-5 ml-4 mr-4"}).adopt(new Element("p", {text: prompt})));
         addInstructorCertificate.panelsList.push(div);
     });
     //makeup the customized panel
     var div = new Element("div", {class:"col", style: "display: none !important;"});
-    var input = new Element("input", {id:"file" + i, name:"file" + i, type:"file", accept:"", style:"display: none;"});
-    var label = new Element("label", {for:"file" + i, class:"input-group-text"}).adopt(new Element("img", {src:"/static/images/uploadFileBnt.svg", width:"18", height:"18"}));
+    var input = new Element("input", {id:"file" + i, name:"file" + i, type:"file", accept:"image/*, application/pdf", style:"display: none;"});
+    var label = new Element("label", {for:"file" + i, class:"input-group-text", style:"cursor: pointer"}).adopt(new Element("img", {src:"/static/images/uploadFileBnt.svg", width:"18", height:"18", draggable:"false"}));
     var textField = new Element("input", {type: "text", id:"customizedcertificatetype", name:"customizedcertificatetype", form:"infoform", size:"45", maxlength:"50", placeholder:"Type your certificate type here", class:""});
     div.adopt(new Element("div", {class:"mt-4 ml-4 mr-4"}).adopt(new Element("p", {text: customizePrompt})));
     div.adopt(new Element("div", {class:"input-group ml-4 mr-4"}).adopt([textField, new Element("div", {class:"input-group-append"}).adopt(new Element(label).adopt(input))]));
@@ -527,6 +527,34 @@ function isEmptyStr(e)
         $(elem).removeClass("is-invalid").addClass("is-valid");
         $(elemcheck).removeClass("invalid-feedback").addClass("valid-feedback");
         return false;
+    }
+}
+
+
+
+function fullnameFormatCheck(a)
+{
+    var regexLength = /^.{1,50}$/g;
+    return regexLength.test(a.value);
+}
+
+function fullnameFormat(e)
+{
+    var fullname = document.infoform.fullnametext;
+    var elemcheck = document.getElementById("fullnamecheck");
+    var regexLength = /^.{1,50}$/g;
+    if(regexLength.test(fullname.value))
+    {
+        elemcheck.innerText = "";
+        $(fullname).removeClass("is-invalid").addClass("is-valid");
+        $(elemcheck).removeClass("invalid-feedback").addClass("valid-feedback");
+        return true;
+    }
+    else 
+    {
+        elemcheck.innerText = "No longer than 50 characters";
+        $(fullname).removeClass("is-valid").addClass("is-invalid");
+        $(elemcheck).removeClass("valid-feedback").addClass("invalid-feedback");
     }
 }
 
@@ -709,18 +737,67 @@ function emailFormat(e)
 }
 
 
-/*
-async function canSubmitUsername()
+
+function usernameFormatCheck(a)
 {
-    try{
-        //await for submitEmail to resolve or reject
-        //would throw error before returning
-        return await submitUsername();
-    } catch(e) {
-        return null;
+    var regexSpaces = /\s+/g;
+    var regexContent = /[^0-9A-Z_a-z\u4E00-\u9FFF\u3400-\u4DBF\u20000-\u2A6DF\u2A700–\u2B73F\u2B740–\u2B81F\u2B820–\u2CEAF]+/g;    //for jck characters
+    var regexLength = /^.{16,}$/g;
+    var regExpList = [regexSpaces, regexLength, regexContent];
+    for(var i = 0; i < 3; i++)
+    {
+        if(regExpList[i].test(a.value)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+usernameFormat.insertStr = "";
+function usernameFormat(e)
+{
+    usernameFormat.insertStr = "";
+    var regexSpaces = /\s+/g;
+    //for jck characters: CJK Unified Ideographs and CJK Unified Ideographs Extension A
+    var regexContent = /[^0-9A-Z_a-z\u4E00-\u9FFF\u3400-\u4DBF]+/g;
+    var regexLength = /^.{16,}$/g;
+    var regExpList = [regexSpaces, regexLength, regexContent];
+    var requireFormat = ["No leading, trailing, or in-between space<br/>",
+                        "No longer than 15 characters",
+                        "Only accept alphanumeric characters, with exceptions of underscores and Chinese characters"];
+    var elem = document.infoform.usernametext;
+    var elemcheck = document.getElementById("usernamecheck");
+    var elemStr = elem.value;
+
+    function displayRequire(i)
+    {
+        if(elemStr.search(regExpList[i]) != -1)
+        {
+            usernameFormat.insertStr += requireFormat[i];
+        }
+        else if(usernameFormat.insertStr.indexOf(requireFormat[i]) != -1)
+        {
+            usernameFormat.insertStr = usernameFormat.insertStr.replace(requireFormat[i], "");
+        }
+    }
+    for(var i = 0; i < 3; i++)
+    {
+        displayRequire(i);
+    }
+    elemcheck.innerHTML = usernameFormat.insertStr;
+    if(usernameFormat.insertStr == "")
+    {
+        $(elem).removeClass("is-invalid").addClass("is-valid");
+        $(elemcheck).removeClass("invalid-feedback").addClass("valid-feedback");
+        return true;    
+    }
+    else
+    {
+        $(elem).removeClass("is-valid").addClass("is-invalid");
+        $(elemcheck).removeClass("valid-feedback").addClass("invalid-feedback");
+        return false;   
     }
 }
-*/
 
 function submitUsername()
 {
@@ -1041,20 +1118,11 @@ handleConfirmpassword.emptyStrTimerList = [];
  */
 function handleFullname(e)
 {
-    isEmptyStr(e)
-    //may need some format verification below
-}
-
-/**
- *"onblur" event handler function
- * @param {Event} e 
- */
-function handleUsername(e)
-{
-    if(!isEmptyStr(e)){
-        //ajax check availability
-        isUsernameAvailable();
+    if(!isEmptyStr(e))
+    {
+        fullnameFormat(e);
     }
+    //may need some format verification below
 }
 
 /**
@@ -1081,7 +1149,27 @@ function handleEmail(e)
 }
 
 /**
- * "onblur" event handler function
+ * "onblur" & "onkeyup" event handler function
+ * @param {Event} e 
+ */
+function handleUsername(e)
+{
+    if(e.type == "keyup")
+    {
+        usernameFormat(e);
+    }
+    else if(e.type == "blur")
+    {
+        if(!isEmptyStr(e) && usernameFormat(e)) {
+            //ajax check availability
+            isUsernameAvailable();
+        }
+    }
+}
+
+
+/**
+ * "onblur" & "onkeyup" event handler function
  * @param {Event} e 
  */
 function handlePassword(e)
@@ -1125,10 +1213,13 @@ function handleAddFile(e)
         document.getElementById('filename' + tabSelected).empty();
         //show the div with corr to the #
         if(tabSelected == 3) {
+            //a customized file is uploaded
             var customizedType = document.getElementById("customizedcertificatetype");
             certificateName = customizedType.value;
             e.target.name = certificateName;
             customizedType.value = "";
+            //clear the warning in the check point
+            document.getElementById("customizedfileuploadcheck").innerText = "";
         }
         var removeBnt = new Element("a", {id:"remove" + tabSelected, text: "remove", href:"#", draggable: "false"});
         document.getElementById('filename' + tabSelected).adopt(new Element("div", {class: "row"}).adopt([new Element("div", {class:"col-md-auto"}).adopt(removeBnt), new Element("div", {class:"col"}).adopt(new Element("p", {text: filename + "  --" + certificateName}))]));
@@ -1157,7 +1248,7 @@ function deleteElements(elemsList)
     if(elemsList.length != 0)
     {
         elemsList.forEach(function(elem){
-            elem.empty();
+            //elem.empty();
             elem.dispose();
         });
     }
@@ -1183,6 +1274,7 @@ function handleUserType(e)
     else if(index == 2)
     {
         handleUserType.elementList.push(addInstructorTypeSelector());
+        handleUserType.elementList.push(addInstructorCertificate());
     }
 }
 
@@ -1286,7 +1378,9 @@ function handleFormSubmit(e)
                             warningsList.push([htmlElem, formCheckList[j].prompt[k]]); 
                             if(formCheckList[j].method[k] == phoneNumberCheck ||
                                formCheckList[j].method[k] == emailCheck ||
-                               (htmlElem.name == "usernametext" &&
+                               formCheckList[j].method[k] == usernameFormatCheck ||
+                               formCheckList[j].method[k] == passwordCheck ||
+                               ((htmlElem.name == "usernametext" || htmlElem.name == "fullnametext") &&
                                 formCheckList[j].method[k] == isNonEmptyField))
                             {   return; }
                             pass = false;
@@ -1302,6 +1396,13 @@ function handleFormSubmit(e)
     if(!pass){    e.preventDefault();    }
     else{
         //console.log(e.target.toQueryString());
+
+        //trim the leading/trailing spaces
+        document.infoform.fullnametext.value = document.infoform.fullnametext.value.trim();
+        if(document.infoform.usertypeselection.selectedIndex == 2 && document.infoform.typeofinstructorselect.selectedIndex == 2) {
+            //institutional instructor register
+            document.infoform.institutionnametext.value = document.infoform.institutionnametext.value.trim();
+        }
         //make a field for selected customized file (id: file3)
         var customizedFile = document.getElementById("file3");
         if(customizedFile.name != "file3") {
@@ -1359,13 +1460,16 @@ function showSubmitWarnings(list)
                 getNextCell(elem[0]).removeClass("valid-feedback").addClass("invalid-feedback").innerText = elem[1];
             } else {
                 document.getElementById("userpasswordcheck").removeClass("valid-feedback").addClass("invalid-feedback").innerText = elem[1];
+                //if passwords not matched
+                //mark the confirmpassword field if not matched
+                if(elem[1] == "Passwords need to be matched") {
+                    $(document.getElementById("userpasswordconfirm")).removeClass("is-valid").addClass("is-invalid");
+                    document.getElementById("userpasswordconfirmcheck").removeClass("valid-feedback").addClass("invalid-feedback").innerText = "Passwords need to be matched";    
+                } else {
+                    $(document.getElementById("userpasswordconfirm")).removeClass("is-valid").addClass("is-invalid");
+                    document.getElementById("userpasswordconfirmcheck").removeClass("valid-feedback").addClass("invalid-feedback").innerText = "Match the password";
+                }
             }
-            //mark the confirmpassword field if not matched
-            if(elem[1] == "Passwords need to be matched")
-            {
-                $(document.getElementById("userpasswordconfirm")).removeClass("is-valid").addClass("is-invalid");
-                getNextCell(document.getElementById("userpasswordconfirm")).removeClass("valid-feedback").addClass("invalid-feedback").innerText = "Passwords need to be matched";    
-            }    
         }
         else
         {
@@ -1410,6 +1514,8 @@ document.infoform.usertypeselection.onchange = handleSelectionBox;
 //register for the email field
 //var emailField = document.infoform.useremail;
 //emailField.addEventListener("blur", handleEmail);
+var usernameField = document.infoform.usernametext;
+usernameField.addEventListener("keyup", handleUsername);
 
 //register for the password format identifier
 var passwordField = document.infoform.userpassword;

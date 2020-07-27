@@ -1,17 +1,8 @@
 let express = require('express')
 let path = require('path')
 let router = express.Router()
-let mongoose = require('mongoose')
-const bcrypt = require('bcryptjs')
-let crypto = require('crypto')
 let bodyParser = require('body-parser')
 let urlencodedParser = bodyParser.urlencoded({extended : false})
-let mongodb = require('mongodb')
-const ObjetId = require('mongodb').ObjectID
-let GridFsStorage = require('multer-gridfs-storage')
-let Grid = require('gridfs-stream')
-let multer = require('multer')
-let uri = require('../config/keys.usaws').MongoURI
 
 
 router.get('/login', (req, res) => res.render('login'))
@@ -37,7 +28,7 @@ const filesFilter = (req, file, cb) => {
         cb(null, false)
     }
 }
-*/
+
 
 const storage = new GridFsStorage({
     url: uri,
@@ -58,7 +49,7 @@ const storage = new GridFsStorage({
     }
   });
   const upload = multer({ storage });
-
+*/
 
 
 
