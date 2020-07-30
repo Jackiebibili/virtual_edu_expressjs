@@ -1,10 +1,10 @@
 const express = require('express')
-
+const path = require('path')
 const router = express.Router()
 
 
 //welcome page
-router.get('/', (req, res) => res.render('welcome'))
+router.get('/', (req, res) => res.sendFile(path.join(__dirname, '../public/html/index.html')))
 
 /*
 //student dashboard
