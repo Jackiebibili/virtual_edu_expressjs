@@ -1,3 +1,4 @@
+const mongoose = require('mongoose')
 mongoose.connection.collection('Instructors')
 
 let CustomerSchema = new mongoose.Schema({
@@ -51,6 +52,11 @@ let CustomerSchema = new mongoose.Schema({
     userpassword: {
         type: String,
         required: true
+    },
+    scheduleId: {
+        type: Array,    //array of IDs
+        required: false,
+        default: []
     },
     certificates_upload: {
         type: Array,
