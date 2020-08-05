@@ -32,7 +32,7 @@
         .absright {
             position: relative;
             float:right;
-            margin-right:10px;
+            margin-right:2px;
             clear:both;
         }
     </style>
@@ -63,6 +63,40 @@
                 <div class='col-sm-1'>
                     <label for='addtimeschedulebutton'>Insert</label>
                     <button class="btn btn-primary form-control" id="addtimeschedulebutton">Add</button>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="duplicateday">Select a target to make copies:</label>
+                    <select id="duplicateday" class="form-control">
+                        <option value="This week">This week</option>
+                    </select>
+                </div>
+                <div class="col-sm">
+                    <label for="duplicatemode">Select a mode:</label>
+                    <select id="duplicatemode" class="form-control">
+                        <option value="To apply to another day">To apply to another day</option>
+                        <option value="To apply to this week">To apply to this week</option>
+                        <option value="To apply to another week">To apply to another week</option>
+                    </select>
+                </div>
+                <div class="col-sm">
+                    <label for="duplicatetoanotherday">Copy to this day:</label>
+                    <select id="duplicatetoanotherday" class="form-control">
+                        <option value="N/A">N/A</option>
+                    </select>
+                </div>
+                <div class="col-sm">
+                    <label for="duplicatetoanotherweek">Copy to this week</label>
+                    <select id="duplicatetoanotherweek" class="form-control">
+                        <option value="N/A">N/A</option>
+                    </select>
+                </div>
+                <div class="col-sm-1">
+                    <label for="duplicatebutton">Copy</label>
+                    <button id="duplicatebutton" class="btn btn-primary form-control">Copy</button>
                 </div>
             </div>
         </div>

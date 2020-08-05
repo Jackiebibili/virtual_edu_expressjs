@@ -6,7 +6,7 @@ const router = express.Router()
 //welcome page
 router.get('/', (req, res) => res.render('welcome'))
 
-router.get('/add-class', (req, res) => res.render('addClass-instructor'))
+router.get('/add-class', (req, res) => res.render('createSchedule-instructor'))
 
 router.post('/create-schedule', (req, res) => {
     let ScheduleModel = require('../models/createSchedule.instructor.model')

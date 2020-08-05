@@ -1,5 +1,5 @@
 <div class='container-fluid mt-5'>
-    <form id='addclassform' name='addclassform'>
+    <form id='addscheduleform' name='addscheduleform'>
         <div class='form-group'>
             <div class='row'>
                 <div class='col-sm-9'>
@@ -13,20 +13,13 @@
             </div>
         </div>
         <div class='form-group'>
-            <label class='col-form-label'>Class Mode:</label>
-            <div class="custom-control custom-switch">
-                <input type="checkbox" class="custom-control-input form-control" id="classmode" name='classmode'>
-                <label class="custom-control-label" for="classmode"> regular course</label>
-            </div>    
-        </div>
-        <div class='form-group'>
             <div class='row'>
                 <div class='col-sm-5'>
-                    <label for='classstartday'>Your schedule starts on:</label>
+                    <label for='classstartday'>Your schedule will start on:</label>
                     <input type="date" id='classstartday' name='classstartday' class='form-control'>
                 </div>
                 <div class='col-sm-5'>
-                    <label for='classendday'> and ends on:</label>
+                    <label for='classendday'> and end on:</label>
                     <input type='date' id='classendday' name='classendday' class='form-control'>
                 </div>
                 <div class='col-sm-2'>
@@ -56,7 +49,7 @@
         <div class='form-group'>
             <div class='row'>
                 <div class='col-sm-3'>
-                    <label for="classdayschedule">Class days</label>
+                    <label for="classdayschedule">Class days on:</label>
                     <select multiple="" class="form-control" id="classdayschedule" name='classdayschedule'>
                         <option value='0'>Sunday</option>
                         <option value='1'>Monday</option>
@@ -80,22 +73,52 @@
                 </div>
             </div>
         </div>
-        <div class='form-group mt-4 mb-4'>
-            <table class='table table-striped tablefixed'>
-                <thead>
-                    <tr>
-                        <th scope="col" class="schedulelogthead">Date</th>
-                        <th scope="col" class="schedulelogthead">Day</th>
-                        <th scope="col" class="schedulelogthead">Time</th>
-                        <th scope="col" class="schedulelogthead">Duration</th>
-                        <th scope="col" class="schedulelogthead">Action</th>
-                    </tr>
-                </thead>
-                <tbody id="schedulelogbody">
-                </tbody>
-            </table>
+        <div class='form-group mt-4 mb-4 hideRow' id="scheduletablelogdiv">
+            <div class="row">
+                <ul class="nav nav-pills" id="navfilter">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">All</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Sunday</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Monday</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Tuesday</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Wednesday</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Thursday</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Friday</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Saturday</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="row">
+                <table class='table table-striped tablefixed'>
+                    <thead>
+                        <tr>
+                            <th scope="col" class="schedulelogthead">Date</th>
+                            <th scope="col" class="schedulelogthead">Day</th>
+                            <th scope="col" class="schedulelogthead">Time</th>
+                            <th scope="col" class="schedulelogthead">Duration</th>
+                            <th scope="col" class="schedulelogthead">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="schedulelogbody">
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div class='form-group mt-4 mb-5'>
+        <div class='form-group mt-4 mb-5 hideRow' id="scheduletablediv">
             <table class='table table-striped tablefixed'>
                 <thead>
                     <tr>
@@ -114,5 +137,5 @@
             </table>
         </div>
     </form>
-    <script src='/static/javascripts/addClass_instructor.js'></script>
+    <script src='/static/javascripts/createSchedule_instructor.js'></script>
 </div>

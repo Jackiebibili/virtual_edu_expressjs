@@ -1,7 +1,7 @@
-NUM_WEEKS = 0;
-NUM_15MINS = 0;
-START_TIME = null;
-END_TIME = null;
+var NUM_WEEKS = 0;
+var NUM_15MINS = 0;
+var START_TIME = null;
+var END_TIME = null;
 function addRowsToCalendar() {
     //get the starting and ending dates
     var reg = /-/g;
@@ -166,9 +166,73 @@ document.getElementById('generateschedulebutton').addEventListener("click", hand
 
 function handleOnclickGenerateSchedule(e) {
     e.preventDefault();
+    if(!canGenerateSchedule()) {
+        console.log("Please check the info you provided before generating your schedule");
+        return;
+    }
     e.target.disabled = true;
     addRowsToCalendar();
+
+    //display the tables
+    document.getElementById('scheduletablelogdiv').removeClass("hideRow");
+    document.getElementById('scheduletablediv').removeClass("hideRow");
 }
+
+function canGenerateSchedule() {
+    var dateStart = document.getElementById('classstartday');
+    var dateEnd = document.getElementById('classendday');
+    var timeStart = document.getElementById('instructordayschedulestartsat');
+    var timeEnd = document.getElementById('instructordayscheduleendsat');
+    var daySelect = document.getElementById('classdayschedule');
+
+    //empty field tests for 2 date input fields
+    if(isTextFieldEmpty(dateStart)) {
+        console.log("start/end date is empty");
+        return false;
+    }
+    if(isTextFieldEmpty(dateEnd)) {
+        console.log("start/end date is empty");
+        return false;
+    }
+    //date format tests for 2 date input fields
+    var dateReg = /^(\d{4}-\d{2}-\d{2})$/;
+    if(!dateReg.test(dateStart.value) || !dateReg.test(dateEnd.value)) {
+        //if the date format is invalid
+        console.log("date format incorrect");
+        return false;
+    }
+    //day selection box selected test
+    var pass = false;
+    for(var i = 0; i < daySelect.options.length; i++) {
+        if(daySelect.options[i].selected) {
+            //at least one option is selected, test passes
+            pass = true;
+            break;
+        }
+    }
+    if(!pass) {
+        console.log("day selection box has no selected options");
+        return false;
+    }
+    
+    var reg = /-/g;
+    var start = dateStart.value.replace(reg, "/");
+    var end = dateEnd.value.replace(reg, "/");
+    var startTime = timeStart.options[timeStart.selectedIndex].value;
+    var endTime = timeEnd.options[timeEnd.selectedIndex].value;
+    var startDate = new Date(start + " " + startTime + " UTC");
+    var endDate = new Date(end + " " + endTime + " UTC");
+
+    //validation for correct date/time interval
+    if(endDate.getTime() - startDate.getTime() <= 0) {
+        //start date and time is behind end date and time
+        console.log("date/time order incorrect");
+        return false;
+    }
+    //validation passed
+    return true;
+}
+
 
 document.body.onload = addDayScheduleOptions();
 
@@ -239,6 +303,12 @@ function addDays(select) {
     });
 }
 
+function addWeeks(select) {
+    for(var i = 1; i <= NUM_WEEKS; i++) {
+        select.add(new Element('option', {value: "Week " + i, text: "Week " + i}), null);
+    }
+}
+
 function addDayScheduleOptions() {
     var select = document.getElementById('instructordayschedulestartsat');
     addTime(select);
@@ -254,6 +324,18 @@ function addWeekScheduleOptionsIframe() {
         var select = iframe.contentWindow.document.getElementById('classscheduleday');
         if(select.options.length == 0) {
             addDays(select);
+        }
+        select = iframe.contentWindow.document.getElementById('duplicateday');
+        if(select.options.length == 1) {
+            addDays(select);
+        }
+        select = iframe.contentWindow.document.getElementById('duplicatetoanotherday');
+        if(select.options.length == 1) {
+            addDays(select);
+        }
+        select = iframe.contentWindow.document.getElementById('duplicatetoanotherweek');
+        if(select.options.length == 1) {
+            addWeeks(select);
         }
         select = iframe.contentWindow.document.getElementById("classschedulestartsat");
         if(select.options.length == 0) {
@@ -362,6 +444,207 @@ function getAllCreatedSchedule(iframe) {
     return sessionsList;
 }
 
+/**
+ * range [0, 6]
+ * returns the index of the dayName, otherwise -1
+ * 
+ * @param {String} dayName 
+ */
+function getDayNumber(dayName) {
+    var daysList = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    for(var i = 0; i < daysList.length; i++) {
+        if(daysList[i] == dayName) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+
+function canDuplicateDayScheduleToAnotherDay(iframe, targetDayName) {
+    var weekSchedule = getAllCreatedSchedule(iframe);
+    for(var i = 0; i < weekSchedule.length; i++) {
+        if(targetDayName == weekSchedule[i].split("_")[0]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function canDuplicateDayScheduleToWeek(iframe, dayName) {
+    var weekSchedule = getAllCreatedSchedule(iframe);
+    for(var i = 0; i < weekSchedule.length; i++) {
+        if(dayName != weekSchedule[i].split("_")[0]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function canDuplicateWeekScheduleToAnotherWeek(iframe, targetIframe) {
+    var targetWeekSchedule = getAllCreatedSchedule(targetIframe);
+    var weekSchedule = getAllCreatedSchedule(iframe);
+    for(var i = 0; i < weekSchedule.length; i++) {
+        for(var j = 0; j < targetWeekSchedule.length; j++) {
+            if(weekSchedule[i].split("_")[0] == targetWeekSchedule[j].split("_")[0]) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+function handleDuplicateSchedule(e) {
+    var weekNumber = e.target.id.split("_")[1].slice(7);
+    var iframe = document.getElementById('week' + weekNumber + 'iframe');
+    var dayName = iframe.contentWindow.document.getElementById('duplicateday').options[iframe.contentWindow.document.getElementById('duplicateday').selectedIndex].value;
+    var dayNumber = getDayNumber(dayName); //default for weekly duplicate options
+    //filter the duplicate schedule options
+    if(dayNumber == -1 && iframe.contentWindow.document.getElementById('duplicatemode' + '_iframe=' + weekNumber).selectedIndex == 2) {
+        //weekly duplicate option
+        var weekOption = iframe.contentWindow.document.getElementById('duplicatetoanotherweek').options[iframe.contentWindow.document.getElementById('duplicatetoanotherweek').selectedIndex].value;
+        var targetWeekNumber = weekOption.slice(5);
+        var targetIframe = document.getElementById('week' + targetWeekNumber + 'iframe');
+        duplicateScheduleWeekly(iframe, targetIframe);
+    } else if(dayNumber != -1 && iframe.contentWindow.document.getElementById('duplicatemode' + '_iframe=' + weekNumber).selectedIndex == 1) {
+        //a day spans a whole week
+        var mode = "a day spans a whole week";
+        duplicateScheduleDaily(iframe, dayNumber, mode);
+    } else if(dayNumber != -1 && iframe.contentWindow.document.getElementById('duplicatemode' + '_iframe=' + weekNumber).selectedIndex == 0) {
+        //a day spans another day
+        var mode = "a day spans another day";
+        var targetDayName = iframe.contentWindow.document.getElementById('duplicatetoanotherday').options[iframe.contentWindow.document.getElementById('duplicatetoanotherday').selectedIndex].value;
+        var targetDayNumber = getDayNumber(targetDayName);
+        duplicateScheduleDaily(iframe, dayNumber, mode, targetDayNumber);
+    } else {
+        //error
+        console.log("Invalid duplicate action.")
+
+    }
+    //update the schedule log table, scan through all weeks (iframes)
+    for(var i = 1; i <= NUM_WEEKS; i++) {
+        var elem = document.getElementById('week' + i + 'iframe');
+        updateScheduleLogTable(elem);
+    }
+}
+
+function hasItem(list, item) {
+    for(var i = 0; i < list.length; i++) {
+        if(item == list[i]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function duplicateScheduleWeekly(iframe, targetIframe) {
+    //validation
+    if(!canDuplicateWeekScheduleToAnotherWeek(iframe, targetIframe)) {
+        console.log("the day schedule column(s) in the week to which you want to copy are not clean");
+        return;
+    }
+
+    var weeklyScheduleInDate = getStartAndEndDateTime(iframe);
+    var copiesWeekScheduleInGridList = [];  //for each element, [iframe_ref, #slots, row, col]
+
+    //get the applicable days list
+    var dayNumbersList = [];
+    var nextWeekDayOptions = targetIframe.contentWindow.document.getElementById('classscheduleday').options;
+    for(var i = 0; i < nextWeekDayOptions.length; i++) {
+        dayNumbersList.push(getDayNumber(nextWeekDayOptions[i].value));
+    }
+
+    for(var i = 0; i < weeklyScheduleInDate.length; i++) {
+        //get the #slots and starting rows in array
+        var temp = getRowAndSlotsNumber(weeklyScheduleInDate[i]);
+        if(hasItem(dayNumbersList, temp[2])) {
+            copiesWeekScheduleInGridList.push([targetIframe, temp[1], temp[0], temp[2] + 1]);
+        }
+    }
+
+    //apply changes to visual blocks
+    copiesWeekScheduleInGridList.forEach(block => {
+        addVisualTimeSlot(block[0], block[1], block[2], block[3]);
+    });
+
+
+}
+
+function duplicateScheduleDaily(iframe, dayNumber, mode, targetDayNumber) {
+    var daysList = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+
+    //validate if it's possible to duplicate -- non empty day schedule?
+    if(mode == "a day spans a whole week" && !canDuplicateDayScheduleToWeek(iframe, daysList[dayNumber])) {
+        console.log("the day schedule columns to which you want to copy are not clean");
+        return;
+    } else if(mode == "a day spans another day" && !canDuplicateDayScheduleToAnotherDay(iframe, daysList[targetDayNumber])) {
+        console.log("the day schedule column to which you want to copy are not clean");
+        return;
+    }
+
+    //create an array of targeted day schedule
+    var weekNumber = Number(iframe.id.slice(4, iframe.id.length - 6));
+    var weeklyScheduleStringList = getAllCreatedSchedule(iframe);
+    var dayScheduleList = [];
+    for(var i = 0; i < weeklyScheduleStringList.length; i++) {
+        if(weeklyScheduleStringList[i].split("_")[0] == daysList[dayNumber]) {
+            dayScheduleList.push(weeklyScheduleStringList[i]);
+        }
+    }
+    var dayScheduleInDateList = [];
+    dayScheduleList.forEach(elem => {
+        dayScheduleInDateList.push(getSingleTimeSchedule(weekNumber, elem));
+    });
+    var dayScheduleInGridList = []; //for each element, [iframe_ref, #slots, row, col]
+    dayScheduleInDateList.forEach(date => {
+        var temp = getRowAndSlotsNumber(date);
+        dayScheduleInGridList.push([iframe, temp[1], temp[0], dayNumber + 1]);
+    });
+
+    var copiesDayScheduleInGridList = [];
+    var colNumbersList = [];
+    if(mode == "a day spans a whole week") {
+        //create an array of copies
+        var weekDayOptions = iframe.contentWindow.document.getElementById('classscheduleday').options;
+        for(var i = 0; i < weekDayOptions.length; i++) {
+            //find the dayNumber for each dayName
+            for(var j = 0; j < daysList.length; j++) {
+                if(j != dayNumber && weekDayOptions[i].value == daysList[j]) {
+                    colNumbersList.push(j + 1);
+                    break;
+                }
+            }
+        }
+    } else if(mode == "a day spans another day") {
+        colNumbersList = [targetDayNumber + 1];
+    }
+    //length of this recursion: a week/a day
+    for(var i = 0; i < colNumbersList.length; i++) {
+        for(var j = 0; j < dayScheduleInGridList.length; j++) {
+            var temp = [dayScheduleInGridList[j][0], dayScheduleInGridList[j][1], dayScheduleInGridList[j][2], colNumbersList[i]];
+            copiesDayScheduleInGridList.push(temp);
+        }
+    }
+    
+    //apply changes as visual blocks
+    copiesDayScheduleInGridList.forEach(block => {
+        addVisualTimeSlot(block[0], block[1], block[2], block[3]);
+    });
+
+}
+
+function getRowAndSlotsNumber(startToEnd) {
+    var gridStartTime = START_TIME.getUTCHours() * 60 + START_TIME.getUTCMinutes();
+    var startTime = startToEnd[0].getHours() * 60 + startToEnd[0].getMinutes();
+    var endTime = startToEnd[1].getHours() * 60 + startToEnd[1].getMinutes();
+    var row = Math.trunc((startTime - gridStartTime) / 15);
+    var numSlots = Math.trunc((endTime - startTime) / 15);
+    return [row, numSlots, startToEnd[0].getDay()];
+}
+
+
+
 function handleClearATimeSession(e) {
     var insideIframe = e.target.alt.split("_")[0];
     var iframeName = e.target.alt.split("_")[1];
@@ -447,11 +730,16 @@ function canAddNewTimeSchedule(s, list, iframe) {
     var dayName = arrayToInsert[0];
     var startTime = arrayToInsert[1];
     var endTime = arrayToInsert[2];
+    //validate start and end time order
+    if(endTime - startTime <= 0) {
+        //error
+        return [false, "end time must come later than start time"];
+    }
     for(var i = 0; i < list.length; i++) {
         var scheduleItems = getStartAndEndTotalMins(list[i]);
         //schedules conflict
         if(scheduleItems[0] == dayName && ((startTime >= scheduleItems[1] && startTime < scheduleItems[2]) || (endTime >= scheduleItems[1] && endTime <= scheduleItems[2]))) {
-            return [false, ""];
+            return [false, "schedule conflicts"];
         }
     }
     var hrs = Math.trunc((endTime - startTime) / 60);
@@ -532,9 +820,50 @@ function getSingleTimeSchedule(weekNumber, str) {
     return [startDate, endDate];    
 }
 
+for(var i = 0; i < document.getElementById("navfilter").childNodes.length; i++) {
+    var elem = document.getElementById("navfilter").childNodes[i];
+    if(elem.nodeName == "LI") {
+        elem.firstChild.nextSibling.addEventListener("click", handleFilterScheduleLogTable);
+    }
+}
+function handleFilterScheduleLogTable(e) {
+    e.preventDefault();
+    //display all rows
+    var allTableRows = document.getElementById('schedulelogbody').childNodes;
+    for(var j = 0; j < allTableRows.length; j++) {
+        if(allTableRows[j].nodeName == "TR") {
+            allTableRows[j].removeClass("hideRow");
+        }
+    }
+    //change button status
+    var text = e.target.innerText;
+    var parentNode = e.target.parentNode.parentNode;
+    for(var i = 0; i < parentNode.childNodes.length; i++) {
+        if(parentNode.childNodes[i].nodeName == "LI" && parentNode.childNodes[i].firstChild.nextSibling.hasClass("active")) {
+            parentNode.childNodes[i].firstChild.nextSibling.removeClass("active");
+            break;
+        }
+    }
+    e.target.addClass("active");
 
-function displayCreatedScheduleInText(iframe, weekNumber, row, str, duration) {
+    if(text != "All") {
+        //filter the schedule based on selected dayName
+        for(var j = 0; j < allTableRows.length; j++) {
+            if(allTableRows[j].nodeName == "TR") {
+                var allRowCells = allTableRows[j].childNodes;
+                if(allRowCells[1].innerText != text) {
+                    //hide all unrelative rows
+                    allTableRows[j].addClass("hideRow");
+                }
+            }
+        }
+    }
+}
+
+
+function updateScheduleLogTable(iframe) {
     var daysList = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    var weekNumber = iframe.id.slice(4, iframe.id.length - 6);
     var list = getStartAndEndDateTime(iframe);
     //check delete items and keep a updated list
     for(var i = 0; i < list.length; i++) {
@@ -569,17 +898,21 @@ function displayCreatedScheduleInText(iframe, weekNumber, row, str, duration) {
             elemsList.push(new Element('td', {text: str}));
         });
 
-        //
+        //create the row in the schedule log table
         var thead = iframe.contentWindow.document.getElementById('thead:time=' + start);
         var nextNodeId = thead.nextSibling.id;
         var rowNumber = nextNodeId.slice(4, nextNodeId.indexOf("$"));
         var dayNum = daysList.indexOf(dayName) + 1;
         var removeLink = new Element('a', {id:"s" + rowNumber + "$" + dayNum + "_iframe" + weekNumber, href:"#", text:"remove"});
-        elemsList.push(removeLink);
+        elemsList.push(new Element('label', {class:"form-control"}).adopt(removeLink));
         var tableBody = document.getElementById('schedulelogbody');
         tableBody.adopt(new Element('tr').adopt(elemsList));
         removeLink.addEventListener("click", handleRemoveLink);
     }
+}
+
+function displayCreatedScheduleInText(iframe, weekNumber, row, str, duration) {
+    var daysList = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
     //add the newly inserted item
     var newTime = getSingleTimeSchedule(weekNumber, str);
@@ -610,11 +943,11 @@ function getTimeString(date) {
     return time;
 }
 
-handleAddTimeSlot.colorSelect = 0;
+borderColorList = ["#DEB887", "#5F9EA0", "#D2691E", "#FF7F50", "#6495ED", "#FFF8DC", "#BDB76B", "#8B008B", "#556B2F", "#FF8C00",
+                    "#FF1493", "#00BFFF", "#696969", "#228B22", "#4B0082"];   //15 different colors for border colors
+
 function handleAddTimeSlot(e) {
     var daysList = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    var borderColorList = ["#DEB887", "#5F9EA0", "#D2691E", "#FF7F50", "#6495ED", "#FFF8DC", "#BDB76B", "#8B008B", "#556B2F", "#FF8C00",
-                            "#FF1493", "#00BFFF", "#696969", "#228B22", "#4B0082"];   //15 different colors for border colors
     var weekNumber = Number(e.target.id.split("=")[1]);
     var iframe = document.getElementById('week' + weekNumber + 'iframe');
     var timeArr = getStartTimeAndDuration(iframe);
@@ -634,7 +967,7 @@ function handleAddTimeSlot(e) {
     var sessionsList = getAllCreatedSchedule(iframe);
     var canAdd = canAddNewTimeSchedule(inputFormat, sessionsList, iframe);
     if(!canAdd[0]) {
-        console.log("Schedules conflict: cannot add a new schedule");
+        console.log(canAdd[1] + ": cannot add a new schedule");
         return;
     }
     var durationStr = canAdd[1];
@@ -642,50 +975,65 @@ function handleAddTimeSlot(e) {
     var thead = iframe.contentWindow.document.getElementById('thead:time=' + startTime);
     var nextNodeId = thead.nextSibling.id;
     var row = nextNodeId.slice(4, nextNodeId.indexOf("$"));
-    const identifier = row;
     displayCreatedScheduleInText(iframe, weekNumber, row, str, durationStr);
+    addVisualTimeSlot(iframe, numSlots, row, col);
+}
+
+addVisualTimeSlot.colorSelect = 0;
+function addVisualTimeSlot(iframe, numSlots, row, col) {
+    var weekNumber = iframe.id.slice(4, iframe.id.length - 6);
+    const identifier = row;
     for(var i = 0; i < numSlots; i++) {
         var td = iframe.contentWindow.document.getElementById("pos=" + row + "$" + col);
         td.innerText = "";
-        if(i == 0) {
+        if(i == 0 && numSlots != 1) {
             td.adopt([new Element('img', {src:"/static/images/sessionDurationMarkBnt.svg", class:"abscenter", height:"10", width:"10", draggable:"false", alt:"s" + identifier}), new Element('img', {src:"/static/images/deleteScheduledSessionBtn.svg", class:"absright", height:"12", style:"cursor: pointer;", width:"12", draggable:"false", alt:"s" + identifier + "$" + col + "_iframe" + weekNumber})]);
             var deleteBtn = td.firstChild.nextSibling;
             deleteBtn.addEventListener("click", handleClearATimeSession);
 
             //the first cell in the column, up, left, and right sides colored
             td.setStyles({
-                "border-top": "3px solid " + borderColorList[handleAddTimeSlot.colorSelect],
-                "border-left": "3px solid " + borderColorList[handleAddTimeSlot.colorSelect],
-                "border-right": "3px solid " + borderColorList[handleAddTimeSlot.colorSelect]
+                "border-top": "3px solid " + borderColorList[addVisualTimeSlot.colorSelect],
+                "border-left": "3px solid " + borderColorList[addVisualTimeSlot.colorSelect],
+                "border-right": "3px solid " + borderColorList[addVisualTimeSlot.colorSelect]
+            });
+        } else if(i == 0 && numSlots == 1) {
+            td.adopt([new Element('img', {src:"/static/images/sessionDurationMarkBnt.svg", class:"abscenter", height:"10", width:"10", draggable:"false", alt:"s" + identifier}), new Element('img', {src:"/static/images/deleteScheduledSessionBtn.svg", class:"absright", height:"12", style:"cursor: pointer;", width:"12", draggable:"false", alt:"s" + identifier + "$" + col + "_iframe" + weekNumber})]);
+            var deleteBtn = td.firstChild.nextSibling;
+            deleteBtn.addEventListener("click", handleClearATimeSession);
+
+            //if the slot is the only slot --session time == 15min
+            td.setStyles({
+                "border-top": "3px solid " + borderColorList[addVisualTimeSlot.colorSelect],
+                "border-left": "3px solid " + borderColorList[addVisualTimeSlot.colorSelect],
+                "border-right": "3px solid " + borderColorList[addVisualTimeSlot.colorSelect],
+                "border-bottom": "3px solid " + borderColorList[addVisualTimeSlot.colorSelect]
             });
         } else if(i == numSlots - 1) {
             td.adopt(new Element('img', {src:"/static/images/sessionDurationMarkBnt.svg", height:"10", width:"10", draggable:"false", alt:"s" + identifier}));
-            var div_cell = td.firstChild;    
 
             //the last cell in the column, down, left and right sides colored
             td.setStyles({
-                "border-bottom": "3px solid " + borderColorList[handleAddTimeSlot.colorSelect],
-                "border-left": "3px solid " + borderColorList[handleAddTimeSlot.colorSelect],
-                "border-right": "3px solid " + borderColorList[handleAddTimeSlot.colorSelect]
+                "border-bottom": "3px solid " + borderColorList[addVisualTimeSlot.colorSelect],
+                "border-left": "3px solid " + borderColorList[addVisualTimeSlot.colorSelect],
+                "border-right": "3px solid " + borderColorList[addVisualTimeSlot.colorSelect]
             });
         } else {
             td.adopt(new Element('img', {src:"/static/images/sessionDurationMarkBnt.svg", height:"10", width:"10", draggable:"false", alt:"s" + identifier}));
-            var div_cell = td.firstChild;    
 
             //the cells in the middle of the column, only left and right sides colored
             td.setStyles({
-                "border-left": "3px solid " + borderColorList[handleAddTimeSlot.colorSelect],
-                "border-right": "3px solid " + borderColorList[handleAddTimeSlot.colorSelect]
+                "border-left": "3px solid " + borderColorList[addVisualTimeSlot.colorSelect],
+                "border-right": "3px solid " + borderColorList[addVisualTimeSlot.colorSelect]
             });
         }
         row++;
     }
-    if(handleAddTimeSlot.colorSelect < borderColorList.length - 1) {
-        handleAddTimeSlot.colorSelect++;
+    if(addVisualTimeSlot.colorSelect < borderColorList.length - 1) {
+        addVisualTimeSlot.colorSelect++;
     } else {
-        handleAddTimeSlot.colorSelect = 0;
+        addVisualTimeSlot.colorSelect = 0;
     }
-
 }
 
 function removeScheduleLog(iframe) {
@@ -699,7 +1047,7 @@ function removeScheduleLog(iframe) {
             tableList.push([allRowCells[0].innerText, allRowCells[2].innerText, allRowCells[4].firstChild.id]);
         }
     }
-    var list = getStartAndEndDateTime(iframe);
+    var list = serializeAllCreatedSchedule();
 
     //get all scheduled time sessions
     for(var i = 0; i < list.length; i++) {
@@ -814,10 +1162,6 @@ function addWeekScheduleTable() {
 }
 
 
-function filterDisplayCreatedScheduleInText(dayName) {
-
-}
-
 
 function emphasizeSelectedDay(week, day) {
     //search by id. id format: pos=[row]$[col]
@@ -911,7 +1255,12 @@ function addWeekTimeSchedule(a) {
         iframe.contentWindow.document.getElementById('weekscheduletablebody').adopt(rowElems);
         addWeekScheduleOptionsIframe();
         iframe.contentWindow.document.getElementById('addtimeschedulebutton').addEventListener("click", handleAddTimeSlot);
+        iframe.contentWindow.document.getElementById('duplicatebutton').addEventListener("click", handleDuplicateSchedule);
         iframe.contentWindow.document.getElementById('addtimeschedulebutton').id = "addtimeschedulebutton" + "_iframe=" + weekNumber;
+        iframe.contentWindow.document.getElementById('duplicatemode').addEventListener("blur", handleDayOrWeekDuplicateSelect);
+        iframe.contentWindow.document.getElementById('duplicatemode').id = "duplicatemode" + "_iframe=" + weekNumber;
+        iframe.contentWindow.document.getElementById('duplicatebutton').id = "duplicatebutton" + "_iframe=" + weekNumber;
+
         //remove unreachable days from the selection box
         var notApplicableList = document.querySelectorAll("img[src='/static/images/notApplicableBnt.svg']");
         notApplicableList.forEach(imgElem => {
@@ -920,15 +1269,47 @@ function addWeekTimeSchedule(a) {
                 var day = Number(imgElem.parentNode.id.slice(imgElem.parentNode.id.indexOf("$") + 1));
                 var daySelect = document.getElementById('week' + week + 'iframe').contentWindow.document.getElementById('classscheduleday');
                 var dayName = daysList[day];
-                for(var i = 0; i < daySelect.options.length; i++) {
-                    if(daySelect.options[i].value == dayName) {
-                        daySelect.options[i] = null;
-                        return;
-                    }
-                }
+                removeDayOption(daySelect, dayName);
+                daySelect = document.getElementById('week' + week + 'iframe').contentWindow.document.getElementById('duplicateday');
+                removeDayOption(daySelect, dayName);
+                daySelect = document.getElementById('week' + week + 'iframe').contentWindow.document.getElementById('duplicatetoanotherday');
+                removeDayOption(daySelect, dayName);
             }
         });
     });
+}
+
+function removeDayOption(daySelect, dayName) {
+    for(var i = 0; i < daySelect.options.length; i++) {
+        if(daySelect.options[i].value == dayName) {
+            daySelect.options[i] = null;
+            return;
+        }
+    }
+}
+
+function handleDayOrWeekDuplicateSelect(e) {
+    //clear all disabled features
+    var weekNumber = e.target.id.split("_")[1].slice(7);
+    var iframe = document.getElementById('week' + weekNumber + 'iframe');
+    iframe.contentWindow.document.getElementById('duplicatetoanotherday').disabled = false;
+    iframe.contentWindow.document.getElementById('duplicatetoanotherweek').disabled = false;
+
+    if(e.target.selectedIndex == 2) {
+        //weekly repeat selected, disable the copy to day selection box
+        iframe.contentWindow.document.getElementById('duplicatetoanotherday').disabled = true;
+        iframe.contentWindow.document.getElementById('duplicatetoanotherday').options[0].selected = true;
+    } else if(e.target.selectedIndex == 0) {
+        //day(s) repeat selected, disable the copy to weel selection box
+        iframe.contentWindow.document.getElementById('duplicatetoanotherweek').disabled = true;
+        iframe.contentWindow.document.getElementById('duplicatetoanotherweek').options[0].selected = true;
+    } else {
+        //single day spans a whole week, disable the copy to day selection box & the copy to weel selection box
+        iframe.contentWindow.document.getElementById('duplicatetoanotherday').disabled = true;
+        iframe.contentWindow.document.getElementById('duplicatetoanotherweek').disabled = true;
+        iframe.contentWindow.document.getElementById('duplicatetoanotherday').options[0].selected = true;
+        iframe.contentWindow.document.getElementById('duplicatetoanotherweek').options[0].selected = true;
+    }
 }
 
 function handleOnclickWeekSchedule(e) {
@@ -991,11 +1372,11 @@ function handleOnclickValidateSchedule(e) {
 
 function isScheduleValidated() {
     //validate the schedule title is empty
-    if(!isTextFieldEmpty(document.getElementById('scheduletitle'))) {
+    if(isTextFieldEmpty(document.getElementById('scheduletitle'))) {
         return false;
     }
     //validate the schedule description is empty
-    if(!isTextFieldEmpty(document.getElementById('scheduledescription'))) {
+    if(isTextFieldEmpty(document.getElementById('scheduledescription'))) {
         return false;
     }
     //validate if no sessions is make
@@ -1009,8 +1390,8 @@ function isScheduleValidated() {
 
 function isTextFieldEmpty(elem) {
     if(elem.value == "") {
-        return false;
-    } else {
         return true;
+    } else {
+        return false;
     }
 }
