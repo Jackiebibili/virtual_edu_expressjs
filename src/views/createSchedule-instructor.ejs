@@ -1,0 +1,141 @@
+<div class='container-fluid mt-5'>
+    <form id='addscheduleform' name='addscheduleform'>
+        <div class='form-group'>
+            <div class='row'>
+                <div class='col-sm-9'>
+                    <label for='scheduletitle'>Schedule title:</label>
+                    <input type='text' id='scheduletitle' name='scheduletitle' class='form-control'>
+                </div>
+                <div class='col-sm-3'>
+                    <label for='validatebutton'>Click to validate:</label>
+                    <button name='validatebutton' id='validatebutton' class='btn btn-danger form-control'>Validate</button>
+                </div>
+            </div>
+        </div>
+        <div class='form-group'>
+            <div class='row'>
+                <div class='col-sm-5'>
+                    <label for='classstartday'>Your schedule will start on:</label>
+                    <input type="date" id='classstartday' name='classstartday' class='form-control'>
+                </div>
+                <div class='col-sm-5'>
+                    <label for='classendday'> and end on:</label>
+                    <input type='date' id='classendday' name='classendday' class='form-control'>
+                </div>
+                <div class='col-sm-2'>
+                    <label for='classoverallduration'>lasts:</label>
+                    <input id='classoverallduration' class='form-control' disabled="">
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class='row'>
+                <div class='col-sm-5'>
+                    <label for='instructordayschedulestartsat'>Your daily schedule will start at:</label>
+                    <select id='instructordayschedulestartsat' class='form-control'>
+                    </select>
+                </div>
+                <div class='col-sm-5'>
+                    <label for='instructordayscheduleendsat'>and end at:</label>
+                    <select id='instructordayscheduleendsat' class='form-control'>
+                    </select>
+                </div>
+                <div class='col-sm-2'>
+                    <label for='scheduledurationinhours'>lasts:</label>
+                    <input id='scheduledurationinhours' class='form-control' disabled="">
+                </div>
+            </div>
+        </div>
+        <div class='form-group'>
+            <div class='row'>
+                <div class='col-sm-3'>
+                    <label for="classdayschedule">Class days on:</label>
+                    <select multiple="" class="form-control" id="classdayschedule" name='classdayschedule'>
+                        <option value='0'>Sunday</option>
+                        <option value='1'>Monday</option>
+                        <option value='2'>Tuesday</option>
+                        <option value='3'>Wednesday</option>
+                        <option value='4'>Thursday</option>
+                        <option value='5'>Friday</option>
+                        <option value='6'>Saturday</option>
+                    </select>        
+                </div>
+                <div class='col-sm-9'>
+                    <label for="scheduledescription">Schedule description:</label>
+                    <textarea class="form-control" id="scheduledescription" name='scheduledescription' rows="4"></textarea>        
+                </div>
+            </div>
+        </div>
+        <div class='form-group'>
+            <div class='row'>
+                <div class='col-sm'>
+                    <button id='generateschedulebutton' name='generateschedulebutton' class='btn btn-success btn-blcok form-control'>Gnerate schedule</button>
+                </div>
+            </div>
+        </div>
+        <div class='form-group mt-4 mb-4 hideRow' id="scheduletablelogdiv">
+            <div class="row">
+                <ul class="nav nav-pills" id="navfilter">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">All</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Sunday</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Monday</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Tuesday</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Wednesday</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Thursday</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Friday</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Saturday</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="row">
+                <table class='table table-striped tablefixed'>
+                    <thead>
+                        <tr>
+                            <th scope="col" class="schedulelogthead">Date</th>
+                            <th scope="col" class="schedulelogthead">Day</th>
+                            <th scope="col" class="schedulelogthead">Time</th>
+                            <th scope="col" class="schedulelogthead">Duration</th>
+                            <th scope="col" class="schedulelogthead">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="schedulelogbody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class='form-group mt-4 mb-5 hideRow' id="scheduletablediv">
+            <table class='table table-striped tablefixed'>
+                <thead>
+                    <tr>
+                        <th scope="col" class="thcss">week\day</th>
+                        <th scope="col" class="tdcss">SUN</th>
+                        <th scope="col" class="tdcss">MON</th>
+                        <th scope="col" class="tdcss">TUE</th>
+                        <th scope="col" class="tdcss">WED</th>
+                        <th scope="col" class="tdcss">THU</th>
+                        <th scope="col" class="tdcss">FRI</th>
+                        <th scope="col" class="tdcss">SAT</th>
+                    </tr>
+                </thead>
+                <tbody id='scheduletablebody'>
+                </tbody>
+            </table>
+        </div>
+    </form>
+    <script src='/static/javascripts/createSchedule_instructor.js'></script>
+</div>

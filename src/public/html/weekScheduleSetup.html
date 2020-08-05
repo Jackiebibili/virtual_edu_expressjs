@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://bootswatch.com/4/simplex/bootstrap.min.css">
+    <script src="https://kit.fontawesome.com/2d8e745a87.js" crossorigin="anonymous"></script>
+    <style>
+        .hideRow {
+            display: none !important;
+        }
+        .tdcss {
+            padding: 0 !important;
+            text-align: center;
+        }
+        .thcss {
+            padding: 0 !important;
+            text-align: left;
+        }
+        .tablefixed {
+            table-layout: fixed;
+            padding: 0 !important;
+            width: 100%;
+        }
+        .abscenter {
+            left:0;
+            right:0;
+            margin-left:auto;
+            margin-right:auto;
+        }
+        .absright {
+            position: relative;
+            float:right;
+            margin-right:2px;
+            clear:both;
+        }
+    </style>
+</head>
+<body>
+    <div class='container-fluid mt-2 mb-2'>
+        <div class='form-group'>
+            <div class='row'>
+                <div class='col-sm'>
+                    <label for='classscheduleday'>The day of schedule is:</label>
+                    <select id='classscheduleday' class='form-control'>
+                    </select>
+                </div>
+                <div class='col-sm'>
+                    <label for='classschedulestartsat'>A class session can start at:</label>
+                    <select id='classschedulestartsat' class='form-control'>
+                    </select>
+                </div>
+                <div class='col-sm'>
+                    <label for='classscheduleendsat'>and end at:</label>
+                    <select id='classscheduleendsat' class='form-control'>
+                    </select>
+                </div>
+                <div class='col-sm-2'>
+                    <label for='classsessionduration'>lasts</label>
+                    <input id='classsessionduration' class='form-control' disabled="">
+                </div>
+                <div class='col-sm-1'>
+                    <label for='addtimeschedulebutton'>Insert</label>
+                    <button class="btn btn-primary form-control" id="addtimeschedulebutton">Add</button>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="duplicateday">Select a target to make copies:</label>
+                    <select id="duplicateday" class="form-control">
+                        <option value="This week">This week</option>
+                    </select>
+                </div>
+                <div class="col-sm">
+                    <label for="duplicatemode">Select a mode:</label>
+                    <select id="duplicatemode" class="form-control">
+                        <option value="To apply to another day">To apply to another day</option>
+                        <option value="To apply to this week">To apply to this week</option>
+                        <option value="To apply to another week">To apply to another week</option>
+                    </select>
+                </div>
+                <div class="col-sm">
+                    <label for="duplicatetoanotherday">Copy to this day:</label>
+                    <select id="duplicatetoanotherday" class="form-control">
+                        <option value="N/A">N/A</option>
+                    </select>
+                </div>
+                <div class="col-sm">
+                    <label for="duplicatetoanotherweek">Copy to this week</label>
+                    <select id="duplicatetoanotherweek" class="form-control">
+                        <option value="N/A">N/A</option>
+                    </select>
+                </div>
+                <div class="col-sm-1">
+                    <label for="duplicatebutton">Copy</label>
+                    <button id="duplicatebutton" class="btn btn-primary form-control">Copy</button>
+                </div>
+            </div>
+        </div>
+        <table class='table tablefixed mt-3 mb-5'>
+            <thead class="thead-dark">
+                <tr>
+                    <th scope='col' id="thead=0" class="thcss">Time\Day</th>
+                    <th scope='col' id="thead=1" class="tdcss">Sun</th>
+                    <th scope='col' id="thead=2" class="tdcss">Mon</th>
+                    <th scope='col' id="thead=3" class="tdcss">Tue</th>
+                    <th scope='col' id="thead=4" class="tdcss">Wed</th>
+                    <th scope='col' id="thead=5" class="tdcss">Thu</th>
+                    <th scope='col' id="thead=6" class="tdcss">Fri</th>
+                    <th scope='col' id="thead=7" class="tdcss">Sat</th>
+                </tr>
+            </thead>
+            <tbody id="weekscheduletablebody">
+            </tbody>
+        </table>
+    </div>
+</body>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+<script src="/static/javascripts/MooTools-Core-1.6.0.js"></script>
+<script src="/static/javascripts/MooTools-More-1.6.0.js"></script>
+</html>
+
