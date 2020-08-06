@@ -59,7 +59,7 @@ app.use(expressLayouts)
 app.set('views',path.join(__dirname, 'views'))
 app.set('view engine', 'ejs')
 
-
+//register the routes
 app.use('/', require('./routes/index'))
 app.use('/users', require('./routes/users'))
 app.use('/student', require('./routes/student'))
@@ -68,6 +68,10 @@ app.use('/instructor', require('./routes/instructor'))
 app.use('/users/login', require('./routes/login'))
 app.use('/users/register-instructor', require('./routes/register-instructor'))
 app.use('/users/register-student', require('./routes/register-student'))
+app.use('/users/collaborate', require('./routes/collaborate'))
+app.use('/users/collaborate/classroom', require('./routes/classroom'))
+app.use('/users/collaborate/playback', require('./routes/playback'))
+
 //create a body(parsed json body property) with incoming call
 app.use(bodyParser.json())
 app.use(methodOverride('_method'))

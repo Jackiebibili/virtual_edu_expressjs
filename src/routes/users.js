@@ -4,6 +4,8 @@ let router = express.Router()
 let bodyParser = require('body-parser')
 let urlencodedParser = bodyParser.urlencoded({extended : false})
 
+//virtual classroom experience introduction to incoming users
+router.get('/', (req, res) => res.sendFile(path.join(__dirname,  '../public/html/user_ad_page.html')))
 
 router.get('/login', (req, res) => res.render('login'))
 /*
