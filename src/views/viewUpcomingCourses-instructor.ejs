@@ -1,0 +1,78 @@
+<div class='container'>
+    <div class='container-fluid mt-5'>
+        <form id='viewupcomingcoursesform' name='viewupcomingcoursesform'>
+            <div class='form-group'>
+                <div class='row'>
+                    <div class='col'>
+                        <a href="/instructor/dashboard/" class='btn btn-info btn-sm'>back</a>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group'>
+                <table class='table table-hover'>
+                    <tbody id="viewupcomingcoursestablebody">
+                        <% if(typeof courses != 'undefined') { %>
+                            <% courses.forEach(function(course){ %>
+                                <tr>
+                                    <td>
+                                        <div class="row">
+                                            <div class='col-sm-5'>
+                                                <label>Subject:</label>
+                                                <ol class="breadcrumb">
+                                                    <% course.subject.forEach(function(subject) { %>
+                                                        <li class="breadcrumb-item"><%= subject %></li>
+                                                    <% }); %>
+                                                </ol>
+                                            </div>
+                                            <div class='col-sm-7'>
+                                                <label>Course title:</label>
+                                                <label class='form-control'><%= course.coursetitle %></label>
+                                            </div>
+                                        </div>
+                                        <div class='row'>
+                                            <div class='col-sm-8'>
+                                                <label>Course session:</label>
+                                                <% var timeStr = getTimeString(new Date(course.sessioninterval[0])) + "--" + getTimeString(new Date(course.sessioninterval[1])); %>
+                                                <% var dateStr = new Date(course.sessioninterval[0]).getDate() + " " + months[new Date(course.sessioninterval[0]).getMonth()] + ", " + new Date(course.sessioninterval[0]).getFullYear() + " (" + new Date(course.sessioninterval[0]).getFullYear() + "/" + (new Date(course.sessioninterval[0]).getMonth() + 1) + "/" + new Date(course.sessioninterval[0]).getDate() + ")"; %>
+                                                <label class='form-control'><%= dateStr + " " + timeStr %></label>
+                                            </div>
+                                            <div class='col-sm-4'>
+                                                <label>Enrollment cap:</label>
+                                                <label class='form-control'><%= course.enrollmentcap %></label>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class='col'>
+                                                <label>Course description:</label>
+                                                <textarea class='form-control' disabled=""><%= course.coursedescription %></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-3 mb-4">
+                                            <div class='col'>
+                                                <button class="btn btn-success btn-block form-control">Edit</button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+</div>
+<% function getTimeString(date) { %>
+    <%    var time = ""; %>
+    <%    if(date.getHours() < 10 && date.getHours() >= 0 && date.getMinutes() < 10 && date.getMinutes() >= 0) { %>
+    <%        time = "0" + date.getHours() + ":0" + date.getMinutes(); %>
+    <%    } else if(date.getHours() < 10 && date.getHours() >= 0) { %>
+    <%        time = "0" + date.getHours() + ":" + date.getMinutes(); %>
+    <%    } else if(date.getMinutes() < 10 && date.getMinutes() >= 0) { %>
+    <%        time = date.getHours() + ":0" + date.getMinutes(); %>
+    <%    } else { %>
+    <%        time = date.getHours() + ":" + date.getMinutes();  %>
+    <%    } %>
+    <%    return time; %>
+<%} %>
+

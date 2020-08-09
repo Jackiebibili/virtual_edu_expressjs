@@ -1,0 +1,136 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">Navbar</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  
+    <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+      <ul class="navbar-nav mr-5 mt-2 mt-lg-0">
+        <li class="nav-item active">
+          <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Link</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled" href="#">Disabled</a>
+        </li>
+      </ul>
+      <div class='form-inline my-2 my-lg-0'>
+      <form id="searchform" class="" method="GET">
+        <select id='searchbarselectrange' class='form-control my-sm-2'>
+          <option value="all">All</option>
+          <option value="Course title">Course title</option>
+          <option value="Subject title">Subject title</option>
+          <option value="Instructor name">Instructor name</option>
+        </select>
+        <input id="searchtext" name="searchtext" class="form-control mr-sm-1" type="search" placeholder="Search">
+        <button id="searchbutton" class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+      </form>
+    </div>
+    </div>
+</nav>
+
+<div class='container'>
+    <div class='container-fluid mt-5'>
+        <form id='addscheduleform' name='addscheduleform'>
+            <div class='form-group'>
+                <div class='row'>
+                    <div class='col'>
+                        <a href="/" class='btn btn-info btn-sm'>back</a>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group'>
+                <table class='table'>
+                    <tbody id="selectscheduletablebody">
+                        <% if(list.length != 0) { %>
+                            <% var months = list[list.length - 1]; %>
+                            <% list.forEach(function(item) { %>
+                                <% if(typeof item.course == "undefined") {return;} %>
+                                <% var course = item.course; var instructor = item.instructor; var schedule = item.schedule; var courses = item.courses; %>
+                                <tr>
+                                    <td>
+                                        <div class='row form-group'>
+                                            <div class='col'>
+                                                <ol class="breadcrumb">
+                                                    <% course.subject.forEach(function(s) { %>
+                                                        <li class="breadcrumb-item"><%= s %></li>
+                                                    <% }) %>
+                                                  </ol>
+                                            </div>
+                                            <div class='col'>
+                                                <a href='#' class='form-control'><%= course.coursetitle %></a>
+                                            </div>
+                                        </div>
+                                        <div class='row form-group'>
+                                            <div class='col-sm-8'>
+                                                <label>Course session:</label>
+                                                <% var timeStr = getTimeString(new Date(course.sessioninterval[0])) + "--" + getTimeString(new Date(course.sessioninterval[1])); %>
+                                                <% var dateStr = new Date(course.sessioninterval[0]).getDate() + " " + months[new Date(course.sessioninterval[0]).getMonth()] + ", " + new Date(course.sessioninterval[0]).getFullYear() + " (" + new Date(course.sessioninterval[0]).getFullYear() + "/" + (new Date(course.sessioninterval[0]).getMonth() + 1) + "/" + new Date(course.sessioninterval[0]).getDate() + ")"; %>
+                                                <label class='form-control'><%= dateStr + " " + timeStr %></label>
+                                            </div>
+                                            <div class='col-sm-4'>
+                                                <label>Enrollment cap:</label>
+                                                <label class='form-control'><%= course.enrollmentcap %></label>
+                                            </div>
+                                        </div>
+                                        <div class='row form-group'>
+                                            <div class="col-sm-3">
+                                                <a href="#" class="form-control"><%= instructor.fullnametext %></a>
+                                            </div>
+                                            <div class="col-sm-9">
+                                                <% var degree = typeof instructor.institutionnametext != "undefined"? instructor.roleselection + " at " + instructor.institutionnametext : instructor.degreeselection; %>
+                                                <label class='form-control'><%= degree %></label>
+                                            </div>
+                                        </div>
+                                        <div class='row form-group'>
+                                            <label class='form-control'>Upcoming courses:</label>
+                                            <% if(courses.length) { %>
+                                                <% var max = courses.length > 5? 5: courses.length; %>
+                                                <% for(var i = 0; i < max; i++) { %>
+                                                    <div class="col">
+                                                        <a href='#'><%= courses[i].coursetitle %></a>
+                                                    </div>        
+                                                <% } %>
+                                            <% } %>
+                                        </div>
+                                        <div class='row form-group'>
+                                            <label class='form-control'>Today's schedule:</label>
+                                            <% if(schedule.length) { %>
+                                                <% var max = schedule.length > 5? 5: schedule.length; %>
+                                                <% for(var i = 0; i < 5; i++) { %>
+                                                    <div class='col'>
+                                                        <a href='#'><%= getTimeString(new Date(schedule[i][0])) + "-" + getTimeString(new Date(schedule[i][1])) %></a>
+                                                    </div>
+                                                <% } %>
+                                            <% } %>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <div class="row">No results. Search with another keyword</div>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<% function getTimeString(date) { %>
+    <%    var time = ""; %>
+    <%    if(date.getHours() < 10 && date.getHours() >= 0 && date.getMinutes() < 10 && date.getMinutes() >= 0) { %>
+    <%        time = "0" + date.getHours() + ":0" + date.getMinutes(); %>
+    <%    } else if(date.getHours() < 10 && date.getHours() >= 0) { %>
+    <%        time = "0" + date.getHours() + ":" + date.getMinutes(); %>
+    <%    } else if(date.getMinutes() < 10 && date.getMinutes() >= 0) { %>
+    <%        time = date.getHours() + ":0" + date.getMinutes(); %>
+    <%    } else { %>
+    <%        time = date.getHours() + ":" + date.getMinutes();  %>
+    <%    } %>
+    <%    return time; %>
+<%} %>
+

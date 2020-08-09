@@ -1,0 +1,58 @@
+<div class='container'>
+    <div class='container-fluid mt-5'>
+        <form id='addcourseform' name='addcourseform'>
+            <div class='form-group'>
+                <div class='row'>
+                    <div class='col'>
+                        <a href="/instructor/dashboard/" class='btn btn-info btn-sm'>back</a>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group'>
+                <div class='row'>
+                    <div class='col-sm-4'>
+                        <label for='coursesubjectlist'>Select a course subject:</label>
+                        <select id='coursesubjectlist' name='coursesubjectlist' class='form-control'>
+                            <option value="Select an option">Select an option</option>
+                        </select>
+                    </div>
+                    <div class='col-sm-8'>
+                        <label for='coursetitle'>Course title:</label>
+                        <input type='text' id='coursetitle' name='coursetitle' class='form-control'>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group'>
+                <div class='row'>
+                    <div class='col-sm-8'>
+                        <label for='coursesessionlist'>Course session:</label>
+                        <select id='coursesessionlist' name='coursesessionlist' class='form-control'>
+                        </select>
+                    </div>
+                    <div class='col-sm-4'>
+                        <label for='courseenrollmentcap'>Enrollment cap:</label>
+                        <input type="text" maxlength="3" id='courseenrollmentcap' name='courseenrollmentcap' class='form-control'>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group'>
+                <div class="row">
+                    <div class="col">
+                        <label for='coursedescription'>Course description:</label>
+                        <textarea id='coursedescription' name='coursedescription' rows="4" class='form-control'></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group'>
+                <div class='row'>
+                    <div class='col-sm'>
+                        <button id='coursecreationvalidatebutton' class='btn btn-success btn-block form-control'>Create course</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <script src="/static/javascripts/createCourse_instructor.js"></script>
+    </div>
+</div>
+
+    

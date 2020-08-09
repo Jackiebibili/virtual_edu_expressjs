@@ -5,20 +5,38 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Attach by Process ID",
+            "processId": "${command:PickProcess}",
+            "request": "attach",
+            "type": "node",
+            "protocol": "inspector",
+            "port": 5858,
+            "localRoot": "${workspaceFolder}",
+            "remoteRoot": "${workspaceFolder}",
+            "sourceMaps": true,
+            "stopOnEntry": true
+        },
+        {
+            "name": "Launch via NPM",
+            "request": "launch",
+            "runtimeArgs": [
+                "run-script",
+                "debug"
+            ],
+            "cwd": "${workspaceFolder}/src",
+            "runtimeExecutable": "npm",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node",
+            "restart": true
+        },
+        {
             "name": "Launch Chrome",
             "request": "launch",
             "type": "pwa-chrome",
             "url": "http://localhost:3000",
             "webRoot": "${workspaceFolder}"
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Launch Program",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "program": "${workspaceFolder}\\index.js"
         }
     ]
 }

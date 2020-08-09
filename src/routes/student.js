@@ -6,7 +6,8 @@ const objectId = require('mongodb').ObjectID
 const { ensureAuthenticated } = require('../config/auth')
 router.get('/dashboard', ensureAuthenticated, (req, res) => {
     res.render('dashboard-student', {
-        name: req.user.usernametext,
+        name: req.user.fullnametext,
+        username: req.user.usernametext,
         lastLogin: req.user.lastLoginDate,
         accountCreated: req.user.creationDate
     })

@@ -2,6 +2,8 @@ var NUM_WEEKS = 0;
 var NUM_15MINS = 0;
 var START_TIME = null;
 var END_TIME = null;
+var selectedOptions = [-1, -1, -1, -1, -1, -1, -1];
+
 function addRowsToCalendar() {
     //get the starting and ending dates
     var reg = /-/g;
@@ -17,11 +19,10 @@ function addRowsToCalendar() {
     var endDay = endDate.getDay();
     //# of full weeks
     var time_diff = endDate.getTime() - startDate.getTime();
-    var numDays = Math.trunc(time_diff / (1000*60*60*24)) + 1;
+    var numDays = Math.round(time_diff / (1000*60*60*24)) + 1;
     var numWeeks = Math.trunc((numDays - (8 - startDay + endDay)) / 7);
 
     //get the selected options
-    var selectedOptions = [-1, -1, -1, -1, -1, -1, -1];
     var options = document.getElementById('classdayschedule').options;
     for(var i = 0; i < options.length; i++) {
         if(options[i].selected) {
@@ -97,33 +98,37 @@ function addRowsToCalendar() {
         upperDateObj.setDate(upperDateObj.getDate() + 7);
     }
 
-    //markup the last week
-    pass = true;
-    for(var i = 0; i < selectedOptions.length; i++) {
-        if(selectedOptions[i] != -1 && i <= endDay) {
-            pass = false;
-            break;
-        }
-    }
-    //need to mark the last week
-    if(!pass) {
-        var lastWeek = [];
-        var datePrompt = "Week " + weekNumber + " (" + (lowerDateObj.getMonth() + 1) + "/" + lowerDateObj.getDate() + "--" + (upperDateObj.getMonth() + 1)+ "/" + upperDateObj.getDate() + ")";
-        var hrefId = (lowerDateObj.getMonth() + 1) + "/" + lowerDateObj.getDate() + "/" + lowerDateObj.getFullYear() + "-" + (upperDateObj.getMonth() + 1)+ "/" + upperDateObj.getDate() + "/" + upperDateObj.getFullYear();
-        lastWeek.push(new Element('th', {scope:"row"}).adopt(new Element('a', {text: datePrompt, href:"#" + hrefId, id:"week" + weekNumber++ + "link"})));
-        for(var i = 0; i < 7; i++) {
+    //skip the last week's row if startDate and endDate are at the same week
+    if(lowerDateObj.getTime() <= endDate.getTime()) {
+        //markup the last week
+        pass = true;
+        for(var i = 0; i < selectedOptions.length; i++) {
             if(selectedOptions[i] != -1 && i <= endDay) {
-                lastWeek.push(new Element('td', {id:"loc=" + row + "$" + col++, class:"tdcss"}).adopt(new Element("div", {draggable:"true"}).adopt(new Element('img', {src:"/static/images/instructorDayScheduleIsNotSetBnt.svg", height:"16", width:"16", draggable:"false"}))));
-            } else if(i > endDay) {
-                lastWeek.push(new Element('td', {id:"loc=" + row + "$" + col++, class:"tdcss"}).adopt(new Element('img', {src:"/static/images/notApplicableBnt.svg", height:"16", width:"16", draggable:"false"})));
-            } else {
-                lastWeek.push(new Element('td', {id:"loc=" + row + "$" + col++, class:"tdcss"}).adopt(new Element('div', {draggable:"true"}).adopt(new Element('img', {src:"/static/images/instructorAddOtherDayBnt.svg", height:"16", width:"16", draggable:"false"}))));
+                pass = false;
+                break;
             }
         }
-        document.getElementById('scheduletablebody').adopt(new Element('tr').adopt(lastWeek));
+        //need to mark the last week
+        if(!pass) {
+            var lastWeek = [];
+            var datePrompt = "Week " + weekNumber + " (" + (lowerDateObj.getMonth() + 1) + "/" + lowerDateObj.getDate() + "--" + (upperDateObj.getMonth() + 1)+ "/" + upperDateObj.getDate() + ")";
+            var hrefId = (lowerDateObj.getMonth() + 1) + "/" + lowerDateObj.getDate() + "/" + lowerDateObj.getFullYear() + "-" + (upperDateObj.getMonth() + 1)+ "/" + upperDateObj.getDate() + "/" + upperDateObj.getFullYear();
+            lastWeek.push(new Element('th', {scope:"row"}).adopt(new Element('a', {text: datePrompt, href:"#" + hrefId, id:"week" + weekNumber++ + "link"})));
+            for(var i = 0; i < 7; i++) {
+                if(selectedOptions[i] != -1 && i <= endDay) {
+                    lastWeek.push(new Element('td', {id:"loc=" + row + "$" + col++, class:"tdcss"}).adopt(new Element("div", {draggable:"true"}).adopt(new Element('img', {src:"/static/images/instructorDayScheduleIsNotSetBnt.svg", height:"16", width:"16", draggable:"false"}))));
+                } else if(i > endDay) {
+                    lastWeek.push(new Element('td', {id:"loc=" + row + "$" + col++, class:"tdcss"}).adopt(new Element('img', {src:"/static/images/notApplicableBnt.svg", height:"16", width:"16", draggable:"false"})));
+                } else {
+                    lastWeek.push(new Element('td', {id:"loc=" + row + "$" + col++, class:"tdcss"}).adopt(new Element('div', {draggable:"true"}).adopt(new Element('img', {src:"/static/images/instructorAddOtherDayBnt.svg", height:"16", width:"16", draggable:"false"}))));
+                }
+            }
+            row++;
+            document.getElementById('scheduletablebody').adopt(new Element('tr').adopt(lastWeek));
+        }
     }
     //record the number of weeks (# of rows in monthly view)
-    NUM_WEEKS = row + 1;
+    NUM_WEEKS = row;
     //record the number of time slots (# of rows in weekly view)
     NUM_15MINS = getNumberOf15Mins();
     //get all empty schedule image elements
@@ -171,11 +176,13 @@ function handleOnclickGenerateSchedule(e) {
         return;
     }
     e.target.disabled = true;
+
     addRowsToCalendar();
 
-    //display the tables
-    document.getElementById('scheduletablelogdiv').removeClass("hideRow");
-    document.getElementById('scheduletablediv').removeClass("hideRow");
+    //show the schedule tables
+    document.getElementById('scheduletablelogdiv').removeClass('hideRow');
+    document.getElementById('scheduletablediv').removeClass('hideRow');
+
 }
 
 function canGenerateSchedule() {
@@ -222,6 +229,13 @@ function canGenerateSchedule() {
     var endTime = timeEnd.options[timeEnd.selectedIndex].value;
     var startDate = new Date(start + " " + startTime + " UTC");
     var endDate = new Date(end + " " + endTime + " UTC");
+    var startTotalMins = startDate.getHours() * 60 + startDate.getMinutes();
+    var endTotalMins = endDate.getHours() * 60 + endDate.getMinutes();
+    //validate for same start and end time
+    if(startTotalMins >= endTotalMins) {
+        console.log("start time is not less than end time");
+        return false;
+    }
 
     //validation for correct date/time interval
     if(endDate.getTime() - startDate.getTime() <= 0) {
@@ -267,30 +281,30 @@ function addTime(select) {
 
 function addTimeInRange(select) {
     //populate a time every 15min
-    var date = new Date(START_TIME.toUTCString());
+    var date = new Date(START_TIME.toString());
     var time = "";
-    while(date.getUTCHours() != END_TIME.getUTCHours() || date.getUTCMinutes() != END_TIME.getUTCMinutes()) {
-        if(date.getUTCHours() < 10 && date.getUTCHours() >= 0 && date.getUTCMinutes() < 10 && date.getUTCMinutes() >= 0) {
-            time = "0" + date.getUTCHours() + ":0" + date.getUTCMinutes();
-        } else if(date.getUTCHours() < 10 && date.getUTCHours() >= 0) {
-            time = "0" + date.getUTCHours() + ":" + date.getUTCMinutes();
-        } else if(date.getUTCMinutes() < 10 && date.getUTCMinutes() >= 0) {
-            time = date.getUTCHours() + ":0" + date.getUTCMinutes();
+    while(date.getHours() != END_TIME.getHours() || date.getMinutes() != END_TIME.getMinutes()) {
+        if(date.getHours() < 10 && date.getHours() >= 0 && date.getMinutes() < 10 && date.getMinutes() >= 0) {
+            time = "0" + date.getHours() + ":0" + date.getMinutes();
+        } else if(date.getHours() < 10 && date.getHours() >= 0) {
+            time = "0" + date.getHours() + ":" + date.getMinutes();
+        } else if(date.getMinutes() < 10 && date.getMinutes() >= 0) {
+            time = date.getHours() + ":0" + date.getMinutes();
         } else {
-            time = date.getUTCHours() + ":" + date.getUTCMinutes();
+            time = date.getHours() + ":" + date.getMinutes();
         }
         select.add(new Element('option', {text:time, value:time}), null);
-        date.setUTCMinutes(date.getUTCMinutes() + 15);
+        date.setMinutes(date.getMinutes() + 15);
     }
     //for the last time slot
-    if(date.getUTCHours() < 10 && date.getUTCHours() >= 0 && date.getUTCMinutes() < 10 && date.getUTCMinutes() >= 0) {
-        time = "0" + date.getUTCHours() + ":0" + date.getUTCMinutes();
-    } else if(date.getUTCHours() < 10 && date.getUTCHours() >= 0) {
-        time = "0" + date.getUTCHours() + ":" + date.getUTCMinutes();
-    } else if(date.getUTCMinutes() < 10 && date.getUTCMinutes() >= 0) {
-        time = date.getUTCHours() + ":0" + date.getUTCMinutes();
+    if(date.getHours() < 10 && date.getHours() >= 0 && date.getMinutes() < 10 && date.getMinutes() >= 0) {
+        time = "0" + date.getHours() + ":0" + date.getMinutes();
+    } else if(date.getHours() < 10 && date.getHours() >= 0) {
+        time = "0" + date.getHours() + ":" + date.getMinutes();
+    } else if(date.getMinutes() < 10 && date.getMinutes() >= 0) {
+        time = date.getHours() + ":0" + date.getMinutes();
     } else {
-        time = date.getUTCHours() + ":" + date.getUTCMinutes();
+        time = date.getHours() + ":" + date.getMinutes();
     }
     select.add(new Element('option', {text:time, value:time}), null);
 }
@@ -317,9 +331,7 @@ function addDayScheduleOptions() {
 }
 
 
-function addWeekScheduleOptionsIframe() {
-    for(var i = 1; i <= NUM_WEEKS; i++) {
-        var iframe = document.getElementById("week" + i + "iframe");
+function addWeekScheduleOptionsIframe(iframe) {
         //add options to day selection box
         var select = iframe.contentWindow.document.getElementById('classscheduleday');
         if(select.options.length == 0) {
@@ -345,7 +357,6 @@ function addWeekScheduleOptionsIframe() {
         if(select.options.length == 0) {
             addTimeInRange(select);
         }
-    }
 }
 
 document.getElementById("classendday").addEventListener("blur", handleDateScheduleDuration);
@@ -635,7 +646,7 @@ function duplicateScheduleDaily(iframe, dayNumber, mode, targetDayNumber) {
 }
 
 function getRowAndSlotsNumber(startToEnd) {
-    var gridStartTime = START_TIME.getUTCHours() * 60 + START_TIME.getUTCMinutes();
+    var gridStartTime = START_TIME.getHours() * 60 + START_TIME.getMinutes();
     var startTime = startToEnd[0].getHours() * 60 + startToEnd[0].getMinutes();
     var endTime = startToEnd[1].getHours() * 60 + startToEnd[1].getMinutes();
     var row = Math.trunc((startTime - gridStartTime) / 15);
@@ -1113,8 +1124,8 @@ function addWeekScheduleTable() {
     var endHrs = Number(endTimeStr.split(":")[0]);
     var endMins = Number(endTimeStr.split(":")[1]);
     var dateIterator = new Date("January 1, 1970 " + startTimeStr + ":00 UTC");
-    START_TIME = new Date("January 1, 1970 " + startTimeStr + ":00 UTC");
-    END_TIME = new Date("January 1, 1970 " + endTimeStr + ":00 UTC");
+    START_TIME = new Date("January 1, 1970 " + startTimeStr + ":00");
+    END_TIME = new Date("January 1, 1970 " + endTimeStr + ":00");
     var time = "";
     var rowPos = 0;
     var colPos = 0;
@@ -1253,7 +1264,7 @@ function addWeekTimeSchedule(a) {
     var iframe = document.getElementById("week" + weekNumber + "iframe");
     iframe.addEventListener('load', () => {
         iframe.contentWindow.document.getElementById('weekscheduletablebody').adopt(rowElems);
-        addWeekScheduleOptionsIframe();
+        addWeekScheduleOptionsIframe(iframe);
         iframe.contentWindow.document.getElementById('addtimeschedulebutton').addEventListener("click", handleAddTimeSlot);
         iframe.contentWindow.document.getElementById('duplicatebutton').addEventListener("click", handleDuplicateSchedule);
         iframe.contentWindow.document.getElementById('addtimeschedulebutton').id = "addtimeschedulebutton" + "_iframe=" + weekNumber;
@@ -1365,6 +1376,8 @@ function handleOnclickValidateSchedule(e) {
     request.post({
         scheduletitle: document.getElementById("scheduletitle").value,
         scheduledescription: document.getElementById("scheduledescription").value,
+        dailytimerange: JSON.stringify([START_TIME, END_TIME]),
+        dayslist: JSON.stringify(selectedOptions),
         schedulearray: JSON.stringify(serializeAllCreatedSchedule())
     });
 }

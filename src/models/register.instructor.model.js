@@ -58,6 +58,18 @@ let CustomerSchema = new mongoose.Schema({
         required: false,
         default: []
     },
+    schedulechosen: {
+        type: String,
+        required: false,
+        default: "",
+        unique: true
+    },
+    coursearray: {
+        type: Array,
+        required: false,
+        default: [],
+        unique: true
+    },
     certificates_upload: {
         type: Array,
         required: true

@@ -22,6 +22,18 @@ let ScheduleSchema = new mongoose.Schema({
         default: [],
         unique: false
     },
+    dailytimeinterval: {
+        type: Array,
+        required: true,
+        default: [],
+        unique: false
+    },
+    daynumberslist: {
+        type: Array,
+        required: true,
+        default: [],
+        unique: false
+    },
     creationdate: {
         type: String,
         required: true,

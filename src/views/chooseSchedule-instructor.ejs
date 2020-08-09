@@ -1,0 +1,51 @@
+<div class='container'>
+    <div class='container-fluid mt-5'>
+        <form id='choosescheduleform' name='choosescheduleform' method="POST" action="choose">
+            <div class='form-group'>
+                <div class='row justify-content-between'>
+                    <div style="left:0;"">
+                        <a href="/instructor/dashboard/" class='btn btn-info btn-sm'>back</a>
+                    </div>
+                    <div style="right:0;">
+                        <button type='submit' id='selectaschedulevalidatebutton' class='btn btn-primary btn-sm'>Validate</a>
+                    </div>
+                </div>
+            </div>
+            <%- include('partials/messages'); %> 
+            <div class='form-group'>
+                <table class='table table-striped'>
+                    <thead>
+                        <tr>
+                            <th scope='col'>Switch a schedule</th>
+                            <th scope='col'>Schedule title</th>
+                            <th scope='col'>Start date</th>
+                            <th scope='col'>End date</th>
+                            <th scope='col'># of sessions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="selectscheduletablebody">
+                        <% if(typeof scheduleList != 'undefined') { %>
+                            <% var i = 0; %>
+                            <% scheduleList.forEach(function(schedule){ %>
+                                <tr>
+                                    <td><input type="radio" value="<%=schedule.id %>" id="<%= selectedScheduleId == schedule.id ? 'radio' + i + '_true': 'radio' + i + '_false' %>" name='selectascheduleradiogroup'></td>
+                                    <td><%= schedule.scheduletitle %></td>
+                                    <td><%= list[i][0].getFullYear() + "/" + (list[i][0].getMonth() + 1) + "/" + list[i][0].getDate() %></td>
+                                    <td><%= list[i][1].getFullYear() + "/" + (list[i][1].getMonth() + 1) + "/" + list[i++][1].getDate() %></td>
+                                    <td><%= schedule.schedulearray.length %></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5">
+                                        <label>Schedule description:</label>
+                                        <textarea rows="2" class='form-control' disabled=""><%=schedule.scheduledescription %></textarea>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+        <script src="/static/javascripts/chooseSchedule_instructor.js"></script>
+    </div>
+</div>

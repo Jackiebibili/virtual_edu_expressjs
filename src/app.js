@@ -22,7 +22,14 @@ mongoose.connect(uri, {
     useUnifiedTopology: true,
     useCreateIndex: true
 })
-    .then(() => console.log('===MongoDB connected==='))
+    .then(() => {
+        //create indexes on instructor's names and course titles
+        const instructorModel = require('./models/register.instructor.model')
+        const courseModel = require('./models/createCourse.instructor.model')
+        instructorModel.index({fullnametext: 1})
+        courseModel.index({coursetitle: 1, subject: 1})
+        console.log('===MongoDB connected===')
+    })
     .catch(err => console.log(err))
 
 
@@ -64,13 +71,15 @@ app.use('/', require('./routes/index'))
 app.use('/users', require('./routes/users'))
 app.use('/student', require('./routes/student'))
 app.use('/instructor', require('./routes/instructor'))
-//app.use('/instructor/dashboard', require('./routes/dashboard-instructor'))
+app.use('/instructor/dashboard', require('./routes/dashboard-instructor'))
+app.use('/instructor/dashboard/schedule', require('./routes/schedule-instructor'))
+app.use('/instructor/dashboard/course', require('./routes/course-instructor'))
 app.use('/users/login', require('./routes/login'))
 app.use('/users/register-instructor', require('./routes/register-instructor'))
 app.use('/users/register-student', require('./routes/register-student'))
-app.use('/users/collaborate', require('./routes/collaborate'))
-app.use('/users/collaborate/classroom', require('./routes/classroom'))
-app.use('/users/collaborate/playback', require('./routes/playback'))
+app.use('/instructor/collaborate', require('./routes/collaborate'))
+app.use('/instructor/collaborate/classroom', require('./routes/classroom'))
+app.use('/instructor/collaborate/playback', require('./routes/playback'))
 
 //create a body(parsed json body property) with incoming call
 app.use(bodyParser.json())
