@@ -1365,6 +1365,7 @@ function getSingleTimeSchedule(weekNumber, str) {
 
 
 function canDuplicateDayScheduleToWeek(iframe, dayName) {
+    var daysList = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     var weekSchedule = getAllCreatedSchedule(iframe);
     for(var i = 0; i < weekSchedule.length; i++) {
         if(dayName != weekSchedule[i].split("_")[0]) {
@@ -1373,7 +1374,9 @@ function canDuplicateDayScheduleToWeek(iframe, dayName) {
     }
 
     //check the day itself
-    if(dayName == "Sunday") {
+    var originalDayNumber = daysList.indexOf(dayName);
+    var originalDayBeforeNumber = originalDayNumber == 0? 6: originalDayNumber - 1;
+    if(originalDayBeforeNumber == 6) {
         var weekBeforeNumber = Number(iframe.id.slice(4, iframe.id.length - 6)) - 1;
         if(weekBeforeNumber >= 1) {
             var weekBeforeSchedule = getAllCreatedSchedule(document.getElementById('week' + weekBeforeNumber + 'iframe'));
@@ -1388,7 +1391,19 @@ function canDuplicateDayScheduleToWeek(iframe, dayName) {
                 }
             }    
         }
+    } else {
+        for(var i = 0; i < weekSchedule.length; i++) {
+            if(daysList[originalDayBeforeNumber] == weekSchedule[i].split("_")[0]) {
+                var startToEndInMins = getStartAndEndTotalMins(weekSchedule[i]);
+                var time_diff = startToEndInMins[2] - startToEndInMins[1];
+                if(time_diff < 0) {
+                    //has cross-day and -week schedule
+                    return false;
+                }
+            }
+        }
     }
+
     for(var i = 0; i < weekSchedule.length; i++) {
         if(dayName == weekSchedule[i].split("_")[0]) {
             var startToEndInMins = getStartAndEndTotalMins(weekSchedule[i]);
@@ -1432,7 +1447,9 @@ function canDuplicateDayScheduleToAnotherDay(iframe, dayName, targetDayName) {
     }
 
     //check the day itself has cross-day or -week schedule
-    if(dayName == "Sunday") {
+    var originalDayNumber = daysList.indexOf(dayName);
+    var originalDayBeforeNumber = originalDayNumber == 0? 6: originalDayNumber - 1;
+    if(originalDayBeforeNumber == 6) {
         var weekBeforeNumber = Number(iframe.id.slice(4, iframe.id.length - 6)) - 1;
         if(weekBeforeNumber >= 1) {
             var weekBeforeSchedule = getAllCreatedSchedule(document.getElementById('week' + weekBeforeNumber + 'iframe'));
@@ -1447,7 +1464,19 @@ function canDuplicateDayScheduleToAnotherDay(iframe, dayName, targetDayName) {
                 }
             }    
         }
+    } else {
+        for(var i = 0; i < weekSchedule.length; i++) {
+            if(daysList[originalDayBeforeNumber] == weekSchedule[i].split("_")[0]) {
+                var startToEndInMins = getStartAndEndTotalMins(weekSchedule[i]);
+                var time_diff = startToEndInMins[2] - startToEndInMins[1];
+                if(time_diff < 0) {
+                    //has cross-day and -week schedule
+                    return false;
+                }
+            }
+        }
     }
+
     for(var i = 0; i < weekSchedule.length; i++) {
         if(dayName == weekSchedule[i].split("_")[0]) {
             var startToEndInMins = getStartAndEndTotalMins(weekSchedule[i]);
@@ -1570,6 +1599,12 @@ function canAddNewTimeSchedule(s, list, iframe) {
         var scheduleItems = getStartAndEndTotalMins(list[i]);
         //schedules conflict
         if(scheduleItems[0] == dayName && ((startTime >= scheduleItems[1] && startTime < scheduleItems[2]) || (endTime >= scheduleItems[1] && endTime <= scheduleItems[2]))) {
+            return [false, "schedule conflicts"];
+        } else if(scheduleItems[0] == dayName &&(startTime < scheduleItems[1] && (endTime <= scheduleItems[2] && endTime > scheduleItems[1]))) {
+            return [false, "schedule conflicts"];
+        } else if(scheduleItems[0] == dayName &&(endTime > scheduleItems[2] && (startTime <= scheduleItems[1] && startTime > scheduleItems[2]))) {
+            return [false, "schedule conflicts"];
+        } else if(scheduleItems[0] == dayName &&(startTime < scheduleItems[1] && endTime > scheduleItems[2])) {
             return [false, "schedule conflicts"];
         }
     }
@@ -1964,7 +1999,6 @@ function handleOnclickAddSingleTimeSlotUpdate(e) {
         console.log("ending date/time must be after the starting date/time");
         return;
     }
-    //date is outside of the original schedule span
 
     //overlappins with original schedule
     var scheduleId = document.getElementById('addsingletimeslotbutton').name;
@@ -2009,6 +2043,19 @@ function hasScheduleConflicts(scheduleId, startToEnd) {
             for(var i = 0; i < scheduleArray.length; i++) {
                 var original = [new Date(scheduleArray[i][0]), new Date(scheduleArray[i][1])];
                 if((startToEnd[0].getTime() >= original[0].getTime() && startToEnd[0].getTime() < original[1].getTime()) || (startToEnd[1].getTime() >= original[0].getTime() && startToEnd[1].getTime() <= original[1].getTime())) {
+                    //the new schedule all in the original schedule
+                    conflict = true;
+                    break;
+                } else if((startToEnd[0].getTime() < original[0].getTime() && (startToEnd[1].getTime() <= original[1].getTime() && startToEnd[1].getTime() > original[0].getTime()))) {
+                    //the new schedule's bottom half in the original schedule
+                    conflict = true;
+                    break;
+                } else if((startToEnd[1].getTime() > original[1].getTime() && (startToEnd[0].getTime() <= original[0].getTime() && startToEnd[0].getTime() > original[1].getTime()))) {
+                    //the new schedule's upper half in the original schedule
+                    conflict = true;
+                    break;
+                } else if(startToEnd[0].getTime() < original[0].getTime() && startToEnd[1].getTime() > original[1].getTime()) {
+                    //the original schedule is part of the new schedule
                     conflict = true;
                     break;
                 }

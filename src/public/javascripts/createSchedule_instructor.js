@@ -751,6 +751,12 @@ function canAddNewTimeSchedule(s, list, iframe) {
         //schedules conflict
         if(scheduleItems[0] == dayName && ((startTime >= scheduleItems[1] && startTime < scheduleItems[2]) || (endTime >= scheduleItems[1] && endTime <= scheduleItems[2]))) {
             return [false, "schedule conflicts"];
+        } else if(scheduleItems[0] == dayName &&(startTime < scheduleItems[1] && (endTime <= scheduleItems[2] && endTime > scheduleItems[1]))) {
+            return [false, "schedule conflicts"];
+        } else if(scheduleItems[0] == dayName &&(endTime > scheduleItems[2] && (startTime <= scheduleItems[1] && startTime > scheduleItems[2]))) {
+            return [false, "schedule conflicts"];
+        } else if(scheduleItems[0] == dayName &&(startTime < scheduleItems[1] && endTime > scheduleItems[2])) {
+            return [false, "schedule conflicts"];
         }
     }
     var hrs = Math.trunc((endTime - startTime) / 60);

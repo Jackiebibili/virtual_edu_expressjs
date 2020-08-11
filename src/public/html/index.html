@@ -34,12 +34,12 @@
             </li>
           </ul>
           <div class='form-inline my-2 my-lg-0'>
-          <form id="searchform" class="" method="GET">
-            <select id='searchbarselectrange' class='form-control my-sm-2'>
-              <option value="all">All</option>
-              <option value="Course title">Course title</option>
-              <option value="Subject title">Subject title</option>
-              <option value="Instructor name">Instructor name</option>
+          <form id="searchform" action="search" method="GET">
+            <select id='r' name='r' class='form-control my-sm-2'>
+              <option value="All">All</option>
+              <option value="CourseTitle">Course title</option>
+              <option value="SubjectTitle">Subject title</option>
+              <option value="InstructorName">Instructor name</option>
             </select>
             <input id="searchtext" name="searchtext" class="form-control mr-sm-1" type="search" placeholder="Search">
             <button id="searchbutton" class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>

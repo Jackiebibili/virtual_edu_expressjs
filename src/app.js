@@ -26,8 +26,8 @@ mongoose.connect(uri, {
         //create indexes on instructor's names and course titles
         const instructorModel = require('./models/register.instructor.model')
         const courseModel = require('./models/createCourse.instructor.model')
-        //instructorModel.index({fullnametext: 1})
-        //courseModel.index({coursetitle: 1, subject: 1})
+        instructorModel.index({fullnametext: 1})
+        courseModel.index({coursetitle: 1, subject: 1})
         console.log('===MongoDB connected===')
     })
     .catch(err => console.log(err))
