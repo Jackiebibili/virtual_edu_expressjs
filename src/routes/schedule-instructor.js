@@ -15,7 +15,6 @@ router.post('/create-schedule', ensureAuthenticated, (req, res) => {
     } else {
         const newSchedule = new ScheduleModel(req.body);
         newSchedule.schedulearray = JSON.parse(req.body.schedulearray);
-        newSchedule.dailytimeinterval = JSON.parse(req.body.dailytimerange);
         newSchedule.daynumberslist = JSON.parse(req.body.dayslist);
         newSchedule.instructorId = req.user.id;
         newSchedule.save()
@@ -73,6 +72,41 @@ router.get('/view', ensureAuthenticated, (req, res) => {
     }    
 })
 
+router.get('/remove-schedule', ensureAuthenticated, (req, res) => {
+    if(!req.query) {
+        return res.status(400).send('Request body is missing')
+    } else {
+        //modify the instructor's chosen schedule and saved schedule list
+        instructorModel.findOne({"_id": objectId(req.user.id)})
+         .then(user => {
+             if(user) {
+                 var scheduleList = user.scheduleId;
+                 var scheduleChosen = user.schedulechosen;
+                 if(scheduleChosen == req.query.scheduleid) {
+                     scheduleChosen = "";
+                 }
+                 var index = scheduleList.indexOf(req.query.scheduleid);
+                 if(index != -1) {
+                    scheduleList.splice(index, 1);
+                    instructorModel.updateOne({"_id": objectId(req.user.id)}, {$set: {
+                        "scheduleId": scheduleList,
+                        "schedulechosen": scheduleChosen
+                    }}, (err, result) => {
+                        if(err) throw err;
+                        console.log(result)
+                        //delete the schedule item (doc)
+                        scheduleModel.deleteOne({"_id": objectId(req.query.scheduleid)}, (err, result) => {
+                            if(err) throw err;
+                            console.log(result)
+                            res.json({deleted: true});
+                        })
+                    })        
+    
+                 }
+             }
+         })
+    }
+})
 
 
 router.get('/view-schedule', ensureAuthenticated, (req, res) => {

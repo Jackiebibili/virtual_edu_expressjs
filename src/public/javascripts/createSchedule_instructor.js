@@ -1376,7 +1376,6 @@ function handleOnclickValidateSchedule(e) {
     request.post({
         scheduletitle: document.getElementById("scheduletitle").value,
         scheduledescription: document.getElementById("scheduledescription").value,
-        dailytimerange: JSON.stringify([START_TIME, END_TIME]),
         dayslist: JSON.stringify(selectedOptions),
         schedulearray: JSON.stringify(serializeAllCreatedSchedule())
     });
