@@ -23,10 +23,12 @@ router.get('/schedule', ensureAuthenticated, (req, res) => {
                      var scheduleList = schedule.schedulearray;
                      //sort the schedule in ascending order
                      scheduleList.sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime());
+                     var now = Date.now();
+
                      //filter out used time slots
                      var scheduleFilteredList = [];
                      scheduleList.forEach(schedule => {
-                         if(typeof schedule[2] == 'undefined') {
+                         if((new Date(schedule[0]).getTime() - now > 0) &&  (typeof schedule[2] == 'undefined')) {
                             scheduleFilteredList.push(schedule);
                          }
                      })
