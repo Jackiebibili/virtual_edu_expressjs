@@ -26,6 +26,7 @@ const monthsArray = [
     ];
 
 //indexing query
+/*
 router.get('/search-instructors', (req, res) => {
     if(!req.query.searchtext) {
         return res.status(400).send("reqest body is missing.")
@@ -152,6 +153,8 @@ router.get('/search-courses', (req, res) => {
          .catch(err => console.log(err))
     }
 })
+*/
+
 
 router.get('/search', (req, res) => {
     if(!req.query.searchtext) {
