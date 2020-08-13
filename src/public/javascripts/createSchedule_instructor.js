@@ -3,168 +3,258 @@ var NUM_15MINS = 0;
 var START_TIME = null;
 var END_TIME = null;
 var selectedOptions = [-1, -1, -1, -1, -1, -1, -1];
+var filteredScheduleArray = [];
+function showCourseSchedule(resJson) {
+    //get the course array
+    var courseArray = resJson.courses;
+    //get the schedule array from courses
+    courseArray.forEach(course => {
+        filteredScheduleArray.push(course.sessioninterval);
+    });
+    //sort the course list
+    filteredScheduleArray.sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime());
 
-function addRowsToCalendar() {
-    //get the starting and ending dates
-    var reg = /-/g;
-    var start = document.getElementById("classstartday").value;
-    start = start.replace(reg, "/");
-    var end = document.getElementById("classendday").value;
-    end = end.replace(reg, "/");
-    var startDate = new Date(start);
-    var endDate = new Date(end);
+    //get the start time and end time
+    var startIndex = document.getElementById('instructordayschedulestartsat').selectedIndex;
+    var endIndex = document.getElementById('instructordayscheduleendsat').selectedIndex;
+    var startTimeStr = document.getElementById('instructordayschedulestartsat').options[startIndex].value;
+    var endTimeStr = document.getElementById('instructordayscheduleendsat').options[endIndex].value;
+    var endHrs = Number(endTimeStr.split(":")[0]);
+    var endMins = Number(endTimeStr.split(":")[1]);
+    var startHrs = Number(startTimeStr.split(":")[0]);
+    var startMins = Number(startTimeStr.split(":")[1]);
 
-    //get the starting and ending day of the week
-    var startDay = startDate.getDay();
-    var endDay = endDate.getDay();
-    //# of full weeks
-    var time_diff = endDate.getTime() - startDate.getTime();
-    var numDays = Math.round(time_diff / (1000 * 60 * 60 * 24)) + 1;
-    var numWeeks = Math.trunc((numDays - (8 - startDay + endDay)) / 7);
-
-    //get the selected options
-    var options = document.getElementById('classdayschedule').options;
-    for (var i = 0; i < options.length; i++) {
-        if (options[i].selected) {
-            selectedOptions[options[i].value] = 1;
-        }
-    }
-
-    //markup the days when the instructors will have class
-    //mark the first week
-    var pass = true;
-    for (var i = 0; i < selectedOptions.length; i++) {
-        if (selectedOptions[i] != -1 && i >= startDay) {
-            pass = false;
-            break;
-        }
-    }
-    //need to mark the first week
-    var weekNumber = 1;
-    var lowerDateObj = new Date(start);
-    var upperDateObj = new Date(start);
-    //initialize the schedule grid
-    var row = 0, col = 0;
-    //Lower date is the date on every Sunday (the start of the week)
-    //Upper date is the date on every Saturday (the end of the week)
-    lowerDateObj.setDate(lowerDateObj.getDate() - startDay);
-    upperDateObj.setDate(upperDateObj.getDate() + 6 - startDay);
-    if (!pass) {
-        var firstWeek = [];
-        var hrefId = (lowerDateObj.getMonth() + 1) + "/" + lowerDateObj.getDate() + "/" + lowerDateObj.getFullYear() + "-" + (upperDateObj.getMonth() + 1) + "/" + upperDateObj.getDate() + "/" + upperDateObj.getFullYear();
-        var datePrompt = "Week " + weekNumber + " (" + (lowerDateObj.getMonth() + 1) + "/" + lowerDateObj.getDate() + "--" + (upperDateObj.getMonth() + 1) + "/" + upperDateObj.getDate() + ")";
-        //firstWeek.push(new Element('th', {scope:"row", text:datePrompt}));
-        firstWeek.push(new Element('th', { scope: "row" }).adopt(new Element('a', { text: datePrompt, href: "#" + hrefId, id: "week" + weekNumber++ + "link" })));
-
-        for (var i = 0; i < 7; i++) {
-            if (selectedOptions[i] != -1 && i >= startDay) {
-                firstWeek.push(new Element('td', { id: "loc=" + row + "$" + col++, class: "tdcss" }).adopt(new Element("div", { draggable: "true" }).adopt(new Element('img', { src: "/static/images/instructorDayScheduleIsNotSetBnt.svg", height: "16", width: "16", draggable: "false" }))));
-            } else if (i < startDay) {
-                firstWeek.push(new Element('td', { id: "loc=" + row + "$" + col++, class: "tdcss" }).adopt(new Element('img', { src: "/static/images/notApplicableBnt.svg", height: "16", width: "16", draggable: "false" })));
-            } else {
-                firstWeek.push(new Element('td', { id: "loc=" + row + "$" + col++, class: "tdcss" }).adopt(new Element('div', { draggable: "true" }).adopt(new Element('img', { src: "/static/images/instructorAddOtherDayBnt.svg", height: "16", width: "16", draggable: "false" }))));
+    //set the start time and end time
+    var overnight = false;
+    if (filteredScheduleArray.length != 0) {
+        var minTime = new Date(filteredScheduleArray[0][0]);
+        var maxTime = new Date(filteredScheduleArray[0][1]);
+        for (var i = 0; i < filteredScheduleArray.length; i++) {
+            //check cross-day or -week schedule input, if so, schedule layout spanss 24h automatically
+            var tempStart = new Date(filteredScheduleArray[i][0]);
+            var tempEnd = new Date(filteredScheduleArray[i][1]);
+            if (isOvernightSchedule([tempStart, tempEnd])) {
+                minTime.setHours(0, 0, 0);
+                maxTime.setHours(0, 0, 0);
+                START_TIME = new Date(minTime.toString());
+                END_TIME = new Date(maxTime.toString());
+                overnight = true;
+                break;
+            }
+            if (getTotalMins(tempStart) < getTotalMins(minTime)) {
+                minTime.setHours(tempStart.getHours(), tempStart.getMinutes(), tempStart.getSeconds());
+            }
+            if (getTotalMins(tempEnd) > getTotalMins(maxTime)) {
+                maxTime.setHours(tempEnd.getHours(), tempEnd.getMinutes(), tempEnd.getSeconds());
             }
         }
-        col = 0;
-        row++;
-        //append the nodes in the array
-        document.getElementById('scheduletablebody').adopt(new Element('tr').adopt(firstWeek));
-    }
-    //increment the lower date and upper date for the next message
-    lowerDateObj.setDate(lowerDateObj.getDate() + 7);
-    upperDateObj.setDate(upperDateObj.getDate() + 7);
-
-
-    //markup the days in the full weeks
-    for (var i = 0; i < numWeeks; i++) {
-        var singleWeekList = [];
-        var datePrompt = "Week " + weekNumber + " (" + (lowerDateObj.getMonth() + 1) + "/" + lowerDateObj.getDate() + "--" + (upperDateObj.getMonth() + 1) + "/" + upperDateObj.getDate() + ")";
-        var hrefId = (lowerDateObj.getMonth() + 1) + "/" + lowerDateObj.getDate() + "/" + lowerDateObj.getFullYear() + "-" + (upperDateObj.getMonth() + 1) + "/" + upperDateObj.getDate() + "/" + upperDateObj.getFullYear();
-        singleWeekList.push(new Element('th', { scope: "row" }).adopt(new Element('a', { text: datePrompt, href: "#" + hrefId, id: "week" + weekNumber++ + "link" })));
-
-        for (var j = 0; j < 7; j++) {
-            if (selectedOptions[j] != -1) {
-                //on the jth day of the week, the instructor has a class
-                singleWeekList.push(new Element('td', { id: "loc=" + row + "$" + col++, class: "tdcss" }).adopt(new Element("div", { draggable: "true" }).adopt(new Element('img', { src: "/static/images/instructorDayScheduleIsNotSetBnt.svg", height: "16", width: "16", draggable: "false" }))));
+        if (!overnight) {
+            if (startHrs * 60 + startMins < getTotalMins(minTime)) {
+                START_TIME = new Date();
+                START_TIME.setHours(startHrs, startMins, 0, 0);
             } else {
-                singleWeekList.push(new Element('td', { id: "loc=" + row + "$" + col++, class: "tdcss" }).adopt(new Element('div', { draggable: "true" }).adopt(new Element('img', { src: "/static/images/instructorAddOtherDayBnt.svg", height: "16", width: "16", draggable: "false" }))));
+                START_TIME = new Date(minTime.toString());
+            }
+            if (endHrs * 60 + endMins > getTotalMins(maxTime)) {
+                END_TIME = new Date();
+                END_TIME.setHours(endHrs, endMins, 0, 0);
+            } else {
+                END_TIME = new Date(maxTime.toString());
             }
         }
-        col = 0;
-        row++;
-        document.getElementById('scheduletablebody').adopt(new Element('tr').adopt(singleWeekList));
-        //increment the lower date and upper date for the next message
-        lowerDateObj.setDate(lowerDateObj.getDate() + 7);
-        upperDateObj.setDate(upperDateObj.getDate() + 7);
+    } else {
+        //no courses has been set
+        START_TIME = new Date();
+        START_TIME.setHours(startHrs, startMins, 0, 0);
+        END_TIME = new Date();
+        END_TIME.setHours(endHrs, endMins, 0, 0);
     }
 
-    //skip the last week's row if startDate and endDate are at the same week
-    if (lowerDateObj.getTime() <= endDate.getTime()) {
-        //markup the last week
-        pass = true;
+    //record the number of time slots (# of rows in weekly view)
+    NUM_15MINS = getNumberOf15Mins();
+
+
+    addRowsToCalendar();
+
+
+    function isOvernightSchedule(startToEnd) {
+        return getTotalMins(startToEnd[1]) - getTotalMins(startToEnd[0]) < 0;
+    }
+
+    function getNumberOf15Mins() {
+        var mins15 = Math.round((getTotalMins(END_TIME) - getTotalMins(START_TIME)) / 15);
+        if (mins15 == 0) {
+            mins15 = 96;
+        }
+        return mins15;
+    }
+
+
+    function getTotalMins(date) {
+        return date.getHours() * 60 + date.getMinutes();
+    }
+
+
+    function addRowsToCalendar() {
+        //get the starting and ending dates
+        var reg = /-/g;
+        var start = document.getElementById("classstartday").value;
+        start = start.replace(reg, "/");
+        var end = document.getElementById("classendday").value;
+        end = end.replace(reg, "/");
+        var startDate = new Date(start);
+        var endDate = new Date(end);
+
+        //get the starting and ending day of the week
+        var startDay = startDate.getDay();
+        var endDay = endDate.getDay();
+        //# of full weeks
+        var time_diff = endDate.getTime() - startDate.getTime();
+        var numDays = Math.round(time_diff / (1000 * 60 * 60 * 24)) + 1;
+        var numWeeks = Math.trunc((numDays - (8 - startDay + endDay)) / 7);
+
+        //get the selected options
+        var options = document.getElementById('classdayschedule').options;
+        for (var i = 0; i < options.length; i++) {
+            if (options[i].selected) {
+                selectedOptions[options[i].value] = 1;
+            }
+        }
+
+        //markup the days when the instructors will have class
+        //mark the first week
+        var pass = true;
         for (var i = 0; i < selectedOptions.length; i++) {
-            if (selectedOptions[i] != -1 && i <= endDay) {
+            if (selectedOptions[i] != -1 && i >= startDay) {
                 pass = false;
                 break;
             }
         }
-        //need to mark the last week
+        //need to mark the first week
+        var weekNumber = 1;
+        var lowerDateObj = new Date(start);
+        var upperDateObj = new Date(start);
+        //initialize the schedule grid
+        var row = 0, col = 0;
+        //Lower date is the date on every Sunday (the start of the week)
+        //Upper date is the date on every Saturday (the end of the week)
+        lowerDateObj.setDate(lowerDateObj.getDate() - startDay);
+        upperDateObj.setDate(upperDateObj.getDate() + 6 - startDay);
         if (!pass) {
-            var lastWeek = [];
-            var datePrompt = "Week " + weekNumber + " (" + (lowerDateObj.getMonth() + 1) + "/" + lowerDateObj.getDate() + "--" + (upperDateObj.getMonth() + 1) + "/" + upperDateObj.getDate() + ")";
+            var firstWeek = [];
             var hrefId = (lowerDateObj.getMonth() + 1) + "/" + lowerDateObj.getDate() + "/" + lowerDateObj.getFullYear() + "-" + (upperDateObj.getMonth() + 1) + "/" + upperDateObj.getDate() + "/" + upperDateObj.getFullYear();
-            lastWeek.push(new Element('th', { scope: "row" }).adopt(new Element('a', { text: datePrompt, href: "#" + hrefId, id: "week" + weekNumber++ + "link" })));
+            var datePrompt = "Week " + weekNumber + " (" + (lowerDateObj.getMonth() + 1) + "/" + lowerDateObj.getDate() + "--" + (upperDateObj.getMonth() + 1) + "/" + upperDateObj.getDate() + ")";
+            //firstWeek.push(new Element('th', {scope:"row", text:datePrompt}));
+            firstWeek.push(new Element('th', { scope: "row" }).adopt(new Element('a', { text: datePrompt, href: "#" + hrefId, id: "week" + weekNumber++ + "link" })));
+
             for (var i = 0; i < 7; i++) {
-                if (selectedOptions[i] != -1 && i <= endDay) {
-                    lastWeek.push(new Element('td', { id: "loc=" + row + "$" + col++, class: "tdcss" }).adopt(new Element("div", { draggable: "true" }).adopt(new Element('img', { src: "/static/images/instructorDayScheduleIsNotSetBnt.svg", height: "16", width: "16", draggable: "false" }))));
-                } else if (i > endDay) {
-                    lastWeek.push(new Element('td', { id: "loc=" + row + "$" + col++, class: "tdcss" }).adopt(new Element('img', { src: "/static/images/notApplicableBnt.svg", height: "16", width: "16", draggable: "false" })));
+                if (selectedOptions[i] != -1 && i >= startDay) {
+                    firstWeek.push(new Element('td', { id: "loc=" + row + "$" + col++, class: "tdcss" }).adopt(new Element("div", { draggable: "true" }).adopt(new Element('img', { src: "/static/images/instructorDayScheduleIsNotSetBnt.svg", height: "16", width: "16", draggable: "false" }))));
+                } else if (i < startDay) {
+                    firstWeek.push(new Element('td', { id: "loc=" + row + "$" + col++, class: "tdcss" }).adopt(new Element('img', { src: "/static/images/notApplicableBnt.svg", height: "16", width: "16", draggable: "false" })));
                 } else {
-                    lastWeek.push(new Element('td', { id: "loc=" + row + "$" + col++, class: "tdcss" }).adopt(new Element('div', { draggable: "true" }).adopt(new Element('img', { src: "/static/images/instructorAddOtherDayBnt.svg", height: "16", width: "16", draggable: "false" }))));
+                    firstWeek.push(new Element('td', { id: "loc=" + row + "$" + col++, class: "tdcss" }).adopt(new Element('div', { draggable: "true" }).adopt(new Element('img', { src: "/static/images/instructorAddOtherDayBnt.svg", height: "16", width: "16", draggable: "false" }))));
                 }
             }
+            col = 0;
             row++;
-            document.getElementById('scheduletablebody').adopt(new Element('tr').adopt(lastWeek));
+            //append the nodes in the array
+            document.getElementById('scheduletablebody').adopt(new Element('tr').adopt(firstWeek));
         }
-    }
-    //record the number of weeks (# of rows in monthly view)
-    NUM_WEEKS = row;
-    //record the number of time slots (# of rows in weekly view)
-    NUM_15MINS = getNumberOf15Mins();
-    //get all empty schedule image elements
-    var emptyScheduleList = document.querySelectorAll("img[src='/static/images/instructorDayScheduleIsNotSetBnt.svg']");
-    //get all plus image elements
-    var plusList = document.querySelectorAll("img[src='/static/images/instructorAddOtherDayBnt.svg']");
+        //increment the lower date and upper date for the next message
+        lowerDateObj.setDate(lowerDateObj.getDate() + 7);
+        upperDateObj.setDate(upperDateObj.getDate() + 7);
 
-    //register the links for onclick
-    for (var i = 1; i <= NUM_WEEKS; i++) {
-        var id = "week" + i + "link";
-        document.getElementById(id).addEventListener("click", handleOnclickWeekSchedule);
-    }
 
-    //onmouserover, change to the calendar icon with the plus sign
-    emptyScheduleList.forEach(elem => {
-        elem.addClass("liPointer");
-        elem.addEventListener("mouseover", handleChangingEmptyScheduleSign);
-        elem.addEventListener("click", handleDisplaySingleDaySchedule);
+        //markup the days in the full weeks
+        for (var i = 0; i < numWeeks; i++) {
+            var singleWeekList = [];
+            var datePrompt = "Week " + weekNumber + " (" + (lowerDateObj.getMonth() + 1) + "/" + lowerDateObj.getDate() + "--" + (upperDateObj.getMonth() + 1) + "/" + upperDateObj.getDate() + ")";
+            var hrefId = (lowerDateObj.getMonth() + 1) + "/" + lowerDateObj.getDate() + "/" + lowerDateObj.getFullYear() + "-" + (upperDateObj.getMonth() + 1) + "/" + upperDateObj.getDate() + "/" + upperDateObj.getFullYear();
+            singleWeekList.push(new Element('th', { scope: "row" }).adopt(new Element('a', { text: datePrompt, href: "#" + hrefId, id: "week" + weekNumber++ + "link" })));
 
-    });
-    //onmouseout, change the icon back to empty schedule
-    emptyScheduleList.forEach(elem => {
-        elem.addEventListener("mouseout", handleChangingEmptyScheduleSign)
-    })
-    //onclick, add an empty schedule calendar
-    plusList.forEach(elem => {
-        elem.addClass("liPointer");
-        elem.addEventListener("click", handleAddingEmptyScheduleSign);
-    });
+            for (var j = 0; j < 7; j++) {
+                if (selectedOptions[j] != -1) {
+                    //on the jth day of the week, the instructor has a class
+                    singleWeekList.push(new Element('td', { id: "loc=" + row + "$" + col++, class: "tdcss" }).adopt(new Element("div", { draggable: "true" }).adopt(new Element('img', { src: "/static/images/instructorDayScheduleIsNotSetBnt.svg", height: "16", width: "16", draggable: "false" }))));
+                } else {
+                    singleWeekList.push(new Element('td', { id: "loc=" + row + "$" + col++, class: "tdcss" }).adopt(new Element('div', { draggable: "true" }).adopt(new Element('img', { src: "/static/images/instructorAddOtherDayBnt.svg", height: "16", width: "16", draggable: "false" }))));
+                }
+            }
+            col = 0;
+            row++;
+            document.getElementById('scheduletablebody').adopt(new Element('tr').adopt(singleWeekList));
+            //increment the lower date and upper date for the next message
+            lowerDateObj.setDate(lowerDateObj.getDate() + 7);
+            upperDateObj.setDate(upperDateObj.getDate() + 7);
+        }
 
-    //add week time schedule for each row
-    for (var i = 1; i <= NUM_WEEKS; i++) {
-        var linkElem = document.getElementById("week" + i + "link");
-        addWeekTimeSchedule(linkElem);
+        //skip the last week's row if startDate and endDate are at the same week
+        if (lowerDateObj.getTime() <= endDate.getTime()) {
+            //markup the last week
+            pass = true;
+            for (var i = 0; i < selectedOptions.length; i++) {
+                if (selectedOptions[i] != -1 && i <= endDay) {
+                    pass = false;
+                    break;
+                }
+            }
+            //need to mark the last week
+            if (!pass) {
+                var lastWeek = [];
+                var datePrompt = "Week " + weekNumber + " (" + (lowerDateObj.getMonth() + 1) + "/" + lowerDateObj.getDate() + "--" + (upperDateObj.getMonth() + 1) + "/" + upperDateObj.getDate() + ")";
+                var hrefId = (lowerDateObj.getMonth() + 1) + "/" + lowerDateObj.getDate() + "/" + lowerDateObj.getFullYear() + "-" + (upperDateObj.getMonth() + 1) + "/" + upperDateObj.getDate() + "/" + upperDateObj.getFullYear();
+                lastWeek.push(new Element('th', { scope: "row" }).adopt(new Element('a', { text: datePrompt, href: "#" + hrefId, id: "week" + weekNumber++ + "link" })));
+                for (var i = 0; i < 7; i++) {
+                    if (selectedOptions[i] != -1 && i <= endDay) {
+                        lastWeek.push(new Element('td', { id: "loc=" + row + "$" + col++, class: "tdcss" }).adopt(new Element("div", { draggable: "true" }).adopt(new Element('img', { src: "/static/images/instructorDayScheduleIsNotSetBnt.svg", height: "16", width: "16", draggable: "false" }))));
+                    } else if (i > endDay) {
+                        lastWeek.push(new Element('td', { id: "loc=" + row + "$" + col++, class: "tdcss" }).adopt(new Element('img', { src: "/static/images/notApplicableBnt.svg", height: "16", width: "16", draggable: "false" })));
+                    } else {
+                        lastWeek.push(new Element('td', { id: "loc=" + row + "$" + col++, class: "tdcss" }).adopt(new Element('div', { draggable: "true" }).adopt(new Element('img', { src: "/static/images/instructorAddOtherDayBnt.svg", height: "16", width: "16", draggable: "false" }))));
+                    }
+                }
+                row++;
+                document.getElementById('scheduletablebody').adopt(new Element('tr').adopt(lastWeek));
+            }
+        }
+        //record the number of weeks (# of rows in monthly view)
+        NUM_WEEKS = row;
+        //record the number of time slots (# of rows in weekly view)
+        NUM_15MINS = getNumberOf15Mins();
+        //get all empty schedule image elements
+        var emptyScheduleList = document.querySelectorAll("img[src='/static/images/instructorDayScheduleIsNotSetBnt.svg']");
+        //get all plus image elements
+        var plusList = document.querySelectorAll("img[src='/static/images/instructorAddOtherDayBnt.svg']");
+
+        //register the links for onclick
+        for (var i = 1; i <= NUM_WEEKS; i++) {
+            var id = "week" + i + "link";
+            document.getElementById(id).addEventListener("click", handleOnclickWeekSchedule);
+        }
+
+        //onmouserover, change to the calendar icon with the plus sign
+        emptyScheduleList.forEach(elem => {
+            elem.addClass("liPointer");
+            elem.addEventListener("mouseover", handleChangingEmptyScheduleSign);
+            elem.addEventListener("click", handleDisplaySingleDaySchedule);
+
+        });
+        //onmouseout, change the icon back to empty schedule
+        emptyScheduleList.forEach(elem => {
+            elem.addEventListener("mouseout", handleChangingEmptyScheduleSign)
+        })
+        //onclick, add an empty schedule calendar
+        plusList.forEach(elem => {
+            elem.addClass("liPointer");
+            elem.addEventListener("click", handleAddingEmptyScheduleSign);
+        });
+
+        //add week time schedule for each row
+        addWeekTimeSchedule(1);
     }
 }
+
 
 
 document.getElementById('generateschedulebutton').addEventListener("click", handleOnclickGenerateSchedule);
@@ -177,7 +267,11 @@ function handleOnclickGenerateSchedule(e) {
     }
     e.target.disabled = true;
 
-    addRowsToCalendar();
+    var request = new Request.JSON({
+        url: "create-schedule",
+        onSuccess: showCourseSchedule
+    });
+    request.get();
 
     //show the schedule tables
     document.getElementById('scheduletablelogdiv').removeClass('hideRow');
@@ -749,11 +843,11 @@ function canAddNewTimeSchedule(s, list, iframe) {
     for (var i = 0; i < list.length; i++) {
         var scheduleItems = getStartAndEndTotalMins(list[i]);
         //schedules conflict
-        if (scheduleItems[0] == dayName && ((startTime >= scheduleItems[1] && startTime < scheduleItems[2]) || (endTime >= scheduleItems[1] && endTime <= scheduleItems[2]))) {
+        if (scheduleItems[0] == dayName && ((startTime >= scheduleItems[1] && startTime < scheduleItems[2]) && (endTime >= scheduleItems[1] && endTime <= scheduleItems[2]))) {
             return [false, "schedule conflicts"];
         } else if (scheduleItems[0] == dayName && (startTime < scheduleItems[1] && (endTime <= scheduleItems[2] && endTime > scheduleItems[1]))) {
             return [false, "schedule conflicts"];
-        } else if (scheduleItems[0] == dayName && (endTime > scheduleItems[2] && (startTime <= scheduleItems[1] && startTime > scheduleItems[2]))) {
+        } else if (scheduleItems[0] == dayName && (endTime > scheduleItems[2] && (startTime >= scheduleItems[1] && startTime < scheduleItems[2]))) {
             return [false, "schedule conflicts"];
         } else if (scheduleItems[0] == dayName && (startTime < scheduleItems[1] && endTime > scheduleItems[2])) {
             return [false, "schedule conflicts"];
@@ -1255,45 +1349,61 @@ function undoEmphasisDay(week) {
 }
 
 function addWeekTimeSchedule(a) {
-    var daysList = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    var weekNumber = Number(a.id.slice(4, a.id.length - 4));
-    //add the week schedule iframe to the row below
-    var tbody = document.getElementById('scheduletablebody');
-    var nextRow = a.parentNode.parentNode.nextSibling;
-    var rowElems = addWeekScheduleTable();
-    var iframeRow = new Element('tr', { class: "hideRow" }).adopt(new Element('td', { colspan: "8" }).adopt(new Element('iframe', { id: "week" + weekNumber + "iframe", src: "/static/html/weekScheduleSetup.html", class: "container" })));
-    if (nextRow) {
-        tbody.insertBefore(iframeRow, nextRow);
-    } else {
-        tbody.adopt(iframeRow);
-    }
-    var iframe = document.getElementById("week" + weekNumber + "iframe");
-    iframe.addEventListener('load', () => {
-        iframe.contentWindow.document.getElementById('weekscheduletablebody').adopt(rowElems);
-        addWeekScheduleOptionsIframe(iframe);
-        iframe.contentWindow.document.getElementById('addtimeschedulebutton').addEventListener("click", handleAddTimeSlot);
-        iframe.contentWindow.document.getElementById('duplicatebutton').addEventListener("click", handleDuplicateSchedule);
-        iframe.contentWindow.document.getElementById('addtimeschedulebutton').id = "addtimeschedulebutton" + "_iframe=" + weekNumber;
-        iframe.contentWindow.document.getElementById('duplicatemode').addEventListener("blur", handleDayOrWeekDuplicateSelect);
-        iframe.contentWindow.document.getElementById('duplicatemode').id = "duplicatemode" + "_iframe=" + weekNumber;
-        iframe.contentWindow.document.getElementById('duplicatebutton').id = "duplicatebutton" + "_iframe=" + weekNumber;
+    var a = document.getElementById("week" + index + "link");
+    if (a) {
+        var daysList = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        var weekNumber = Number(a.id.slice(4, a.id.length - 4));
+        //add the week schedule iframe to the row below
+        var tbody = document.getElementById('scheduletablebody');
+        var nextRow = a.parentNode.parentNode.nextSibling;
+        var rowElems = addWeekScheduleTable();
+        var iframeRow = new Element('tr', { class: "hideRow" }).adopt(new Element('td', { colspan: "8" }).adopt(new Element('iframe', { id: "week" + weekNumber + "iframe", src: "/static/html/weekScheduleSetup.html", class: "container" })));
+        if (nextRow) {
+            tbody.insertBefore(iframeRow, nextRow);
+        } else {
+            tbody.adopt(iframeRow);
+        }
+        var iframe = document.getElementById("week" + weekNumber + "iframe");
+        iframe.addEventListener('load', () => {
+            iframe.contentWindow.document.getElementById('weekscheduletablebody').adopt(rowElems);
+            addWeekScheduleOptionsIframe(iframe);
+            iframe.contentWindow.document.getElementById('addtimeschedulebutton').addEventListener("click", handleAddTimeSlot);
+            iframe.contentWindow.document.getElementById('duplicatebutton').addEventListener("click", handleDuplicateSchedule);
+            iframe.contentWindow.document.getElementById('addtimeschedulebutton').id = "addtimeschedulebutton" + "_iframe=" + weekNumber;
+            iframe.contentWindow.document.getElementById('duplicatemode').addEventListener("blur", handleDayOrWeekDuplicateSelect);
+            iframe.contentWindow.document.getElementById('duplicatemode').id = "duplicatemode" + "_iframe=" + weekNumber;
+            iframe.contentWindow.document.getElementById('duplicatebutton').id = "duplicatebutton" + "_iframe=" + weekNumber;
 
-        //remove unreachable days from the selection box
-        var notApplicableList = document.querySelectorAll("img[src='/static/images/notApplicableBnt.svg']");
-        notApplicableList.forEach(imgElem => {
-            var week = 1 + Number(imgElem.parentNode.id.slice(4, imgElem.parentNode.id.indexOf("$")));
-            if (week == weekNumber) {
-                var day = Number(imgElem.parentNode.id.slice(imgElem.parentNode.id.indexOf("$") + 1));
-                var daySelect = document.getElementById('week' + week + 'iframe').contentWindow.document.getElementById('classscheduleday');
-                var dayName = daysList[day];
-                removeDayOption(daySelect, dayName);
-                daySelect = document.getElementById('week' + week + 'iframe').contentWindow.document.getElementById('duplicateday');
-                removeDayOption(daySelect, dayName);
-                daySelect = document.getElementById('week' + week + 'iframe').contentWindow.document.getElementById('duplicatetoanotherday');
-                removeDayOption(daySelect, dayName);
-            }
+            //remove unreachable days from the selection box
+            var notApplicableList = document.querySelectorAll("img[src='/static/images/notApplicableBnt.svg']");
+            notApplicableList.forEach(imgElem => {
+                var week = 1 + Number(imgElem.parentNode.id.slice(4, imgElem.parentNode.id.indexOf("$")));
+                if (week == weekNumber) {
+                    var day = Number(imgElem.parentNode.id.slice(imgElem.parentNode.id.indexOf("$") + 1));
+                    var daySelect = document.getElementById('week' + week + 'iframe').contentWindow.document.getElementById('classscheduleday');
+                    var dayName = daysList[day];
+                    removeDayOption(daySelect, dayName);
+                    daySelect = document.getElementById('week' + week + 'iframe').contentWindow.document.getElementById('duplicateday');
+                    removeDayOption(daySelect, dayName);
+                    daySelect = document.getElementById('week' + week + 'iframe').contentWindow.document.getElementById('duplicatetoanotherday');
+                    removeDayOption(daySelect, dayName);
+                }
+            });
+            addWeekTimeSchedule(index + 1);
         });
-    });
+    } else {
+        //load complete
+        //read and display the schedule
+        for (var i = 0; i < filteredScheduleArray.length; i++) {
+            var startToEnd = [new Date(filteredScheduleArray[i][0]), new Date(filteredScheduleArray[i][1])];
+            var weekNumber = getSessionWeekNumber(startToEnd);
+            var temp = getRowAndSlotsNumber(startToEnd);    //[iframe_ref, #slots, row, col]
+            var iframe = document.getElementById("week" + weekNumber + "iframe");
+            //all course schedule
+            addVisualTimeSlot(iframe, temp[1], temp[0], temp[2] + 1, "course");
+            updateScheduleLogTable(iframe);
+        }
+    }
 }
 
 function removeDayOption(daySelect, dayName) {

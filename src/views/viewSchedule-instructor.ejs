@@ -1,168 +1,178 @@
 <div class='container'>
-<div class='container-fluid mt-5'>
-    <form id='addscheduleform' name='addscheduleform'>
-        <div class='form-group'>
-            <div class='row'>
-                <div class='col'>
-                    <a href="/instructor/dashboard/" class='btn btn-info btn-sm'>back</a>
-                </div>
-            </div>
-        </div>
-        <div class='form-group'>
-            <table class='table table-hover'>
-                <thead>
-                    <tr>
-                        <th scope='col'>Schedule title</th>
-                        <th scope='col'>Start date</th>
-                        <th scope='col'>End date</th>
-                        <th scope='col'># of sessions</th>
-                        <th scope='col'></th>
-                        <th scope='col'></th>
-                    </tr>
-                </thead>
-                <tbody id="selectscheduletablebody">
-                    <% if(typeof scheduleList != 'undefined') { %>
-                        <% var i = 0; %>
-                        <% scheduleList.forEach(function(schedule){ %>
-                            <tr>
-                                <td><%= schedule.scheduletitle %></td>
-                                <td><%= list[i][0].getFullYear() + "/" + (list[i][0].getMonth() + 1) + "/" + list[i][0].getDate() %></td>
-                                <td><%= list[i][1].getFullYear() + "/" + (list[i][1].getMonth() + 1) + "/" + list[i++][1].getDate() %></td>
-                                <td><%= schedule.schedulearray.length %></td>
-                                <td><button class="btn btn-success" id="view_scheduleid=<%= schedule.id %>" >View</button></td>
-                                <td><button class="btn btn-danger" id="remove_scheduleid=<%= schedule.id %>" >Remove</button></td>
-                            </tr>
-                        <% }); %>
-                    <% } %>
-                </tbody>
-            </table>
-        </div>
-        <div class='form-group hideRow' id='scheduleactiondiv'>
-            <div class="row">
-                <div class='col'>
-                    <button id='addsingletimeslotbutton' class='btn btn-info btn-block'>Add a single schedule slot</button>
-                </div>
-                <div class='col'>
-                    <button id='viewselectedschedulebutton' class='btn btn-warning btn-block'>View/edit the selected schedule</button>
-                </div>
-            </div>
-        </div>
-        <div class='form-group hideRow' id='scheduleviewmessage'>
-            <div class="row">
-                <div class='col'>
-                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                        <button id="schedulemessageclosebutton" type="button" class="close" data-dismiss="alert" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
+    <div class='container-fluid mt-5'>
+        <form id='addscheduleform' name='addscheduleform'>
+            <div class='form-group'>
+                <div class='row'>
+                    <div class='col'>
+                        <a href="/instructor/dashboard/" class='btn btn-info btn-sm'>back</a>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class='form-group hideRow' id='addsingletimeslotdiv'>
-            <div class='row'>
-                <div class='col-sm-4'>
-                    <label for='addsingletimeslotinputdate'>Select a date:</label>
-                    <input type="date" id='addsingletimeslotinputdate' class='form-control'>
-                </div>
-                <div class='col-sm'>
-                    <label for='addsingletimeslotselectstarttime'>Select the starting time:</label>
-                    <select id='addsingletimeslotselectstarttime' class='form-control'>
-                    </select>
-                </div>
-                <div class='col-sm'>
-                    <label for='addsingletimeslotselectendtime'>Select the ending time:</label>
-                    <select id='addsingletimeslotselectendtime' class='form-control'>
-                    </select>
-                </div>
-                <div class='col-sm-2'>
-                    <label for='addsingletimeslotvalidatebutton'>Confirm:</label>
-                    <button id='addsingletimeslotvalidatebutton' class='btn btn-success form-control'>Validate</button>
-                </div>
-            </div>
-        </div>
-        <div class='form-group hideRow' id='scheduletitlediv'>
-            <label for='scheduletitle'>Schedule title:</label>
-            <input class='form-control' id='scheduletitle' name='scheduletitle'>
-        </div>
-        <div class='form-group hideRow' id='scheduledescriptiondiv'>
-            <label for='scheduledescription'>Schedule description:</label>
-            <textarea class="form-control" id="scheduledescription" name='scheduledescription' rows="4"></textarea>        
-        </div>
-        <div class='form-group mt-4 mb-4 hideRow' id="scheduletablelogdiv">
-            <div class="row">
-                <ul class="nav nav-pills" id="navfilter">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#">All</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Sunday</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Monday</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Tuesday</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Wednesday</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Thursday</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Friday</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Saturday</a>
-                    </li>
-                </ul>
-            </div>
-            <div class="row">
-                <table class='table table-striped tablefixed'>
+            <div class='form-group'>
+                <table class='table table-hover'>
                     <thead>
                         <tr>
-                            <th scope="col" class="schedulelogthead">Date</th>
-                            <th scope="col" class="schedulelogthead">Day</th>
-                            <th scope="col" class="schedulelogthead">Time</th>
-                            <th scope="col" class="schedulelogthead">Duration</th>
-                            <th scope="col" class="schedulelogthead">Action</th>
+                            <th scope='col'>Schedule title</th>
+                            <th scope='col'>Start date</th>
+                            <th scope='col'>End date</th>
+                            <th scope='col'># of sessions</th>
+                            <th scope='col'></th>
+                            <th scope='col'></th>
                         </tr>
                     </thead>
-                    <tbody id="schedulelogbody">
+                    <tbody id="selectscheduletablebody">
+                        <% if(typeof scheduleList != 'undefined') { %>
+                        <% var i = 0; %>
+                        <% scheduleList.forEach(function(schedule){ %>
+                        <tr>
+                            <td><%= schedule.scheduletitle %></td>
+                            <td><%= list[i][0].getFullYear() + "/" + (list[i][0].getMonth() + 1) + "/" + list[i][0].getDate() %>
+                            </td>
+                            <td><%= list[i][1].getFullYear() + "/" + (list[i][1].getMonth() + 1) + "/" + list[i++][1].getDate() %>
+                            </td>
+                            <td><%= schedule.schedulearray.length %></td>
+                            <td><button class="btn btn-success" id="view_scheduleid=<%= schedule.id %>">Select</button>
+                            </td>
+                            <td><button class="btn btn-danger" id="remove_scheduleid=<%= schedule.id %>">Remove</button>
+                            </td>
+                        </tr>
+                        <% }); %>
+                        <% } %>
                     </tbody>
                 </table>
             </div>
-        </div>
-        <div class='form-group mt-4 mb-5 hideRow' id="scheduletablediv">
-            <table class='table table-striped tablefixed'>
-                <thead>
-                    <tr>
-                        <th scope="col" class="thcss">week\day</th>
-                        <th scope="col" class="tdcss">SUN</th>
-                        <th scope="col" class="tdcss">MON</th>
-                        <th scope="col" class="tdcss">TUE</th>
-                        <th scope="col" class="tdcss">WED</th>
-                        <th scope="col" class="tdcss">THU</th>
-                        <th scope="col" class="tdcss">FRI</th>
-                        <th scope="col" class="tdcss">SAT</th>
-                    </tr>
-                </thead>
-                <tbody id='scheduletablebody'>
-                </tbody>
-            </table>
-        </div>
-        <div class='form-group hideRow' id='scheduleupdatebuttondiv'>
-            <div class='row'>
-                <div class='col-sm'>
-                    <button id='updateschedulebutton' name='updateschedulebutton' class='btn btn-success btn-blcok form-control'>Update schedule</button>
+            <div class='form-group hideRow' id='scheduleactiondiv'>
+                <div class="row">
+                    <div class='col'>
+                        <button id='addsingletimeslotbutton' class='btn btn-info btn-block'>Add a single schedule
+                            slot</button>
+                    </div>
+                    <div class='col'>
+                        <button id='viewselectedschedulebutton' class='btn btn-warning btn-block'>View/edit the selected
+                            schedule</button>
+                    </div>
                 </div>
             </div>
-        </div>
+            <div class='form-group hideRow' id='scheduleviewmessage'>
+                <div class="row">
+                    <div class='col'>
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <button id="schedulemessageclosebutton" type="button" class="close" data-dismiss="alert"
+                                aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group hideRow' id='addsingletimeslotdiv'>
+                <div class='row'>
+                    <div class='col-sm-4'>
+                        <label for='addsingletimeslotinputdate'>Select a date:</label>
+                        <input type="date" id='addsingletimeslotinputdate' class='form-control'>
+                    </div>
+                    <div class='col-sm'>
+                        <label for='addsingletimeslotselectstarttime'>Select the starting time:</label>
+                        <select id='addsingletimeslotselectstarttime' class='form-control'>
+                        </select>
+                    </div>
+                    <div class='col-sm'>
+                        <label for='addsingletimeslotselectendtime'>Select the ending time:</label>
+                        <select id='addsingletimeslotselectendtime' class='form-control'>
+                        </select>
+                    </div>
+                    <div class='col-sm-2'>
+                        <label for='addsingletimeslotvalidatebutton'>Confirm:</label>
+                        <button id='addsingletimeslotvalidatebutton'
+                            class='btn btn-success form-control'>Validate</button>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group hideRow' id='scheduletitlediv'>
+                <label for='scheduletitle'>Schedule title:</label>
+                <input class='form-control' id='scheduletitle' name='scheduletitle'>
+            </div>
+            <div class='form-group hideRow' id='scheduledescriptiondiv'>
+                <label for='scheduledescription'>Schedule description:</label>
+                <textarea class="form-control" id="scheduledescription" name='scheduledescription' rows="4"></textarea>
+            </div>
+            <div class='form-group mt-4 mb-4 hideRow' id="scheduletablelogdiv">
+                <div class="row">
+                    <ul class="nav nav-pills" id="navfilter">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#">All</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Sunday</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Monday</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Tuesday</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Wednesday</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Thursday</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Friday</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Saturday</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="row">
+                    <table class='table table-striped tablefixed'>
+                        <thead>
+                            <tr>
+                                <th scope="col" class="schedulelogthead">Date</th>
+                                <th scope="col" class="schedulelogthead">Day</th>
+                                <th scope="col" class="schedulelogthead">Time</th>
+                                <th scope="col" class="schedulelogthead">Duration</th>
+                                <th scope="col" class="schedulelogthead">Type</th>
+                                <th scope="col" class="schedulelogthead">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="schedulelogbody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class='form-group mt-4 mb-5 hideRow' id="scheduletablediv">
+                <table class='table table-striped tablefixed'>
+                    <thead>
+                        <tr>
+                            <th scope="col" class="thcss">week\day</th>
+                            <th scope="col" class="tdcss">SUN</th>
+                            <th scope="col" class="tdcss">MON</th>
+                            <th scope="col" class="tdcss">TUE</th>
+                            <th scope="col" class="tdcss">WED</th>
+                            <th scope="col" class="tdcss">THU</th>
+                            <th scope="col" class="tdcss">FRI</th>
+                            <th scope="col" class="tdcss">SAT</th>
+                        </tr>
+                    </thead>
+                    <tbody id='scheduletablebody'>
+                    </tbody>
+                </table>
+            </div>
+            <div class='form-group hideRow' id='scheduleupdatebuttondiv'>
+                <div class='row'>
+                    <div class='col-sm'>
+                        <button id='updateschedulebutton' name='updateschedulebutton'
+                            class='btn btn-success btn-blcok form-control'>Update schedule</button>
+                    </div>
+                </div>
+            </div>
 
-    </form>
-    <script>
+        </form>
+        <script>
 
-    </script>
-    <script src='/static/javascripts/viewSchedule_instructor.js'></script>
-</div>
+        </script>
+        <script src='/static/javascripts/viewSchedule_instructor.js'></script>
+    </div>
 </div>
