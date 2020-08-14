@@ -15,7 +15,10 @@ function showSchedule(resJson) {
 
     var courseArray = resJson.courses;
 
-    var numberNow = Date.now();
+    var numberNow = new Date();
+    numberNow.setHours(0, 0, 0, 0);
+    numberNow = numberNow.getTime();
+
     startDate = new Date();
     startDate.setHours(0, 0, 0);
 
@@ -30,7 +33,7 @@ function showSchedule(resJson) {
     filteredScheduleArray = [];
     scheduleArray.forEach(schedule => {
         var dateSchedule = new Date(schedule[0]);
-        if (dateSchedule.getTime() > numberNow) {
+        if (dateSchedule.getTime() >= numberNow) {
             filteredScheduleArray.push(schedule);
         }
     });
@@ -112,6 +115,7 @@ function showSchedule(resJson) {
         }
     }
     endDate.setHours(0, 0, 0);
+    startDate = minDate;
     //adjust the startDate to minDate if the minDate is in advance of today
     minDate.setHours(0, 0, 0);
     if (minDate.getTime() > startDate.getTime()) {
