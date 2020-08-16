@@ -37,29 +37,34 @@ function showCourseSchedule(resJson) {
     //get the end date
     startDate = new Date();
     startDate.setHours(0, 0, 0);
-    var minDate = new Date(filteredScheduleArray[0][0]);
-    endDate = new Date(filteredScheduleArray[0][1]);
-    for (var i = 0; i < filteredScheduleArray.length; i++) {
-        var temp2 = new Date(filteredScheduleArray[i][1]);
-        if (temp2.getTime() > endDate.getTime()) {
-            endDate = temp2;
-        }
-        var temp1 = new Date(filteredScheduleArray[i][0]);
-        if (temp1.getTime() < minDate.getTime()) {
-            minDate = temp1;
-        }
-    }
-    endDate.setHours(0, 0, 0);
-    //adjust the startDate to minDate if the minDate is in advance of today
-    minDate.setHours(0, 0, 0);
-    if (minDate.getTime() > startDate.getTime()) {
-        startDate = minDate;
-    }
-    if (selectStartDate.getTime() < startDate.getTime()) {
+    if (typeof filteredScheduleArray == "undefined" || filteredScheduleArray.length == 0) {
         startDate = selectStartDate;
-    }
-    if (selectEndDate.getTime() > endDate.getTime()) {
         endDate = selectEndDate;
+    } else {
+        var minDate = new Date(filteredScheduleArray[0][0]);
+        endDate = new Date(filteredScheduleArray[0][1]);
+        for (var i = 0; i < filteredScheduleArray.length; i++) {
+            var temp2 = new Date(filteredScheduleArray[i][1]);
+            if (temp2.getTime() > endDate.getTime()) {
+                endDate = temp2;
+            }
+            var temp1 = new Date(filteredScheduleArray[i][0]);
+            if (temp1.getTime() < minDate.getTime()) {
+                minDate = temp1;
+            }
+        }
+        endDate.setHours(0, 0, 0);
+        //adjust the startDate to minDate if the minDate is in advance of today
+        minDate.setHours(0, 0, 0);
+        if (minDate.getTime() > startDate.getTime()) {
+            startDate = minDate;
+        }
+        if (selectStartDate.getTime() < startDate.getTime()) {
+            startDate = selectStartDate;
+        }
+        if (selectEndDate.getTime() > endDate.getTime()) {
+            endDate = selectEndDate;
+        }
     }
 
     //set the start time and end time
@@ -110,7 +115,6 @@ function showCourseSchedule(resJson) {
 
     //record the number of time slots (# of rows in weekly view)
     NUM_15MINS = getNumberOf15Mins();
-
 
     addRowsToCalendar();
 
@@ -302,11 +306,28 @@ function handleOnclickGenerateSchedule(e) {
     });
     request.get();
 
+    //register the extension of card bodies
+    document.getElementById('extendscheduletablelogbutton').addEventListener("click", handleExtendCardBody);
+    document.getElementById('extendscheduletablebutton').addEventListener("click", handleExtendCardBody);
+
+
     //show the schedule tables
     document.getElementById('scheduletablelogdiv').removeClass('hideRow');
     document.getElementById('scheduletablediv').removeClass('hideRow');
 
 }
+
+function handleExtendCardBody(e) {
+    var cardBody = document.getElementById(e.target.alt);
+    cardBody.toggleClass("hideRow");
+    if (cardBody.hasClass("hideRow")) {
+        //change the icon to extend down bar
+        e.target.src = "/static/images/extendBarDownBtn.svg";
+    } else {
+        e.target.src = "/static/images/extendBarUpBtn.svg";
+    }
+}
+
 
 function canGenerateSchedule() {
     var dateStart = document.getElementById('classstartday');
@@ -451,6 +472,8 @@ function addDayScheduleOptions() {
     addTime(select);
     select = document.getElementById('instructordayscheduleendsat');
     addTime(select);
+    //add a toggle button
+    document.getElementById('extendscheduleconfigbutton').addEventListener("click", handleExtendCardBody);
 }
 
 
@@ -632,8 +655,13 @@ function getAllCreatedSchedule(iframe) {
         }
         //if the schedule ends at the last row, record it
         if (keep) {
+            var date = new Date();
+            date.setHours(Number(endTime.split(":")[0]), Number(endTime.split(":")[1], 0, 0));
+            //add 15 mins to get the last row's time
+            date.setMinutes(date.getMinutes() + 15);
             keep = false;
-            sessionsList.push(daysList[col - 1] + "_" + startTime + "-" + "00:00" + "_" + name);
+            var str = getTimeString(date);
+            sessionsList.push(daysList[col - 1] + "_" + startTime + "-" + str + "_" + name);
             startTime = "";
             endTime = "";
         }
@@ -1406,7 +1434,7 @@ function serializeAllCreatedSchedule() {
         iframeSchedulesList.forEach(item => {
             //exclude the course list
             if (item[2] == "schedule") {
-                schedulesList.push(item);
+                schedulesList.push([item[0], item[1]]);
             }
         });
     }

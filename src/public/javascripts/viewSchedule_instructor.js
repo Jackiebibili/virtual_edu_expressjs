@@ -632,7 +632,7 @@ function serializeAllCreatedSchedule() {
         iframeSchedulesList.forEach(item => {
             //exclude the course list
             if (item[2] == "schedule") {
-                schedulesList.push(item);
+                schedulesList.push([item[0], item[1]]);
             }
         });
     }
@@ -1093,8 +1093,13 @@ function getAllCreatedSchedule(iframe) {
         }
         //if the schedule ends at the last row, record it
         if (keep) {
+            var date = new Date();
+            date.setHours(Number(endTime.split(":")[0]), Number(endTime.split(":")[1], 0, 0));
+            //add 15 mins to get the last row's time
+            date.setMinutes(date.getMinutes() + 15);
             keep = false;
-            sessionsList.push(daysList[col - 1] + "_" + startTime + "-" + "00:00" + "_" + name);
+            var str = getTimeString(date);
+            sessionsList.push(daysList[col - 1] + "_" + startTime + "-" + str + "_" + name);
             startTime = "";
             endTime = "";
         }
@@ -2121,8 +2126,7 @@ function handleOnclickRemoveButtons(e) {
         //hide the visual schedule section
         document.getElementById('addsingletimeslotdiv').addClass('hideRow');
         document.getElementById('scheduleviewmessage').addClass('hideRow');
-        document.getElementById('scheduletitlediv').addClass('hideRow');
-        document.getElementById('scheduledescriptiondiv').addClass('hideRow');
+        document.getElementById('scheduleinfodiv').addClass('hideRow');
         document.getElementById('scheduletablelogdiv').addClass('hideRow');
         document.getElementById('scheduletablediv').addClass('hideRow');
         document.getElementById('scheduleupdatebuttondiv').addClass('hideRow');
@@ -2181,8 +2185,7 @@ function handleOnclickViewButtons(e) {
     //hide the visual schedule section
     document.getElementById('addsingletimeslotdiv').addClass('hideRow');
     document.getElementById('scheduleviewmessage').addClass('hideRow');
-    document.getElementById('scheduletitlediv').addClass('hideRow');
-    document.getElementById('scheduledescriptiondiv').addClass('hideRow');
+    document.getElementById('scheduleinfodiv').addClass('hideRow');
     document.getElementById('scheduletablelogdiv').addClass('hideRow');
     document.getElementById('scheduletablediv').addClass('hideRow');
     document.getElementById('scheduleupdatebuttondiv').addClass('hideRow');
@@ -2217,6 +2220,24 @@ function handlePageOnload() {
     document.getElementById('addsingletimeslotbutton').addEventListener('click', handleOnclickAddSingleTimeSlotButton);
     document.getElementById('viewselectedschedulebutton').addEventListener('click', handleOnclickViewScheduleButton);
     document.getElementById('addsingletimeslotvalidatebutton').addEventListener('click', handleOnclickAddSingleTimeSlotUpdate);
+
+    //register the card bodies
+    document.getElementById('extendschedulelistbutton').addEventListener("click", handleExtendCardBody);
+    document.getElementById('extendscheduleinfobutton').addEventListener("click", handleExtendCardBody);
+    document.getElementById('extendscheduletablelogbutton').addEventListener("click", handleExtendCardBody);
+    document.getElementById('extendscheduletablebutton').addEventListener("click", handleExtendCardBody);
+}
+
+
+function handleExtendCardBody(e) {
+    var cardBody = document.getElementById(e.target.alt);
+    cardBody.toggleClass("hideRow");
+    if (cardBody.hasClass("hideRow")) {
+        //change the icon to extend down bar
+        e.target.src = "/static/images/extendBarDownBtn.svg";
+    } else {
+        e.target.src = "/static/images/extendBarUpBtn.svg";
+    }
 }
 
 
@@ -2236,8 +2257,7 @@ function handleOnclickViewScheduleButton(e) {
     document.getElementById('addsingletimeslotbutton').disabled = true;
 
     //show the schedule
-    document.getElementById('scheduletitlediv').removeClass('hideRow');
-    document.getElementById('scheduledescriptiondiv').removeClass('hideRow');
+    document.getElementById('scheduleinfodiv').removeClass('hideRow');
     document.getElementById('scheduletablelogdiv').removeClass('hideRow');
     document.getElementById('scheduletablediv').removeClass('hideRow');
     document.getElementById('scheduleupdatebuttondiv').removeClass('hideRow');
